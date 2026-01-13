@@ -7,7 +7,8 @@ function App() {
   const [newRecords, setNewRecords] = useState({
     date: '', exercise: '', weight: '', reps: '', sets: ''
   })
-  const[loaded, setLoaded]=useState(false)
+  const [edit, setEdit] = useState(null);
+  const [loaded, setLoaded] = useState(false)
   useEffect(() => {
     const saved = localStorage.getItem("records");
     if (saved) {
@@ -16,62 +17,104 @@ function App() {
     setLoaded(true)
   }, []);
   useEffect(() => {
-    if(!loaded)return;
+    if (!loaded) return;
     localStorage.setItem("records", JSON.stringify(records));
   }, [records]);
 
   const isInvalid =
     !newRecords.date ||
     !newRecords.exercise ||
-
     !newRecords.reps ||
     !newRecords.sets;
 
   const handleAddRecord = () => {
-    if (isInvalid) {
-      alert('全て入力してください')
-      return
+    if (edit) {
+      const update = records.map(day => {
+        if (day.date === edit.date) {
+          return {
+            ...day,
+            items: day.items.map((item, i) => {
+              if (i === edit.index) {
+                return {
+                  exercise: newRecords.exercise,
+                  weight: newRecords.weight,
+                  reps: newRecords.reps,
+                  sets: newRecords.sets,
+                }
+              } return item;
+            })
+          };
+        } return day;
+      });
+      setRecords(update);
+      setEdit(null)
+      setShowForm(false)
     } else {
-      const existing = records.find(r => r.date === newRecords.date)
-      if (existing) {
-        const update = records.map(record => {
-          if (record.date === newRecords.date) {
-            return {
-              ...record, items: [...record.items,
-              {
-                exercise: newRecords.exercise,
-                weight: newRecords.weight,
-                reps: newRecords.reps,
-                sets: newRecords.sets,
+      if (isInvalid) {
+        alert('全て入力してください')
+        return
+      } else {
+        const existing = records.find(r => r.date === newRecords.date)
+        if (existing) {
+          const update = records.map(record => {
+            if (record.date === newRecords.date) {
+              return {
+                ...record, items: [...record.items,
+                {
+                  exercise: newRecords.exercise,
+                  weight: newRecords.weight,
+                  reps: newRecords.reps,
+                  sets: newRecords.sets,
+                }
+                ]
               }
+            } else {
+              return record
+            };
+          });
+          setRecords(update);
+        } else {
+          setRecords([
+            ...records,
+            {
+              date: newRecords.date,
+              items: [
+                {
+                  exercise: newRecords.exercise,
+                  weight: newRecords.weight,
+                  reps: newRecords.reps,
+                  sets: newRecords.sets,
+                }
               ]
             }
-          } else {
-            return record
-          };
-        });
-        setRecords(update);
-      } else {
-        setRecords([
-          ...records,
-          {
-            date: newRecords.date,
-            items: [
-              {
-                exercise: newRecords.exercise,
-                weight: newRecords.weight,
-                reps: newRecords.reps,
-                sets: newRecords.sets,
-              }
-            ]
-          }
-        ]);
-      }
+          ]);
+        }
 
-      setNewRecords({ date: '', exercise: '', weight: '', reps: '', sets: '' })
-      setShowForm(false)
+        setNewRecords({ date: '', exercise: '', weight: '', reps: '', sets: '' })
+        setShowForm(false)
+      }
     }
   }
+
+
+
+  const handleDeleteItem = (date, index) => {
+    const update = records.map(day => {
+      if (day.date === date) {
+        return {
+          ...day,
+          items: day.items.filter((_, i) => i !== index)
+        }
+      } return day;
+    });
+    setRecords(update)
+  };
+
+  const handleDeleteRecord = (date) => {
+    const update = records.filter(day => day.date !== date);
+    setRecords(update);
+  };
+
   return (
     <div>
       <header>
@@ -119,7 +162,10 @@ function App() {
           .sort((a, b) => b.date.localeCompare(a.date))
           .map(day => (
             <div key={day.date}>
-              <h3 className="date">{day.date}</h3>
+              <h3 className="date">
+                {day.date}
+                <button onClick={() => handleDeleteRecord(day.date)}>削除</button>
+              </h3>
               <table>
                 <tbody>
                   {day.items.map((item, i) => (
@@ -128,6 +174,17 @@ function App() {
                       <td>{item.weight} kg</td>
                       <td>{item.reps} 回</td>
                       <td>{item.sets} セット</td>
+                      <td><button onClick={() => {
+                        setEdit({ date: day.date, index: i });
+                        setNewRecords({
+                          date: day.date,
+                          exercise: item.exercise,
+                          weight: item.weight,
+                          reps: item.reps,
+                          sets: item.sets
+                        });
+                        setShowForm(true)
+                      }}>編集</button><button onClick={() => handleDeleteItem(day.date, i)}>削除</button></td>
                     </tr>
                   ))}
                 </tbody>
@@ -136,6 +193,7 @@ function App() {
           ))}
         <h3>{ }</h3>
       </div>
+
     </div>
   )
 }
