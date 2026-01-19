@@ -35,14 +35,14 @@ function WeightPage() {
     setWeight(update);
   }
   const [range, setRange] = useState(30);
-  const filteredWeight =weight
-  .filter(item=>{
-    const today = new Date();
-    const date = new Date(item.date);
-    const displayDate = (today - date)/(1000 * 60 * 60 *24);
-    return displayDate <= range;
-  })
-  .sort((a,b)=> new Date(a.date) - new Date(b.date));
+  const filteredWeight = weight
+    .filter(item => {
+      const today = new Date();
+      const date = new Date(item.date);
+      const displayDate = (today - date) / (1000 * 60 * 60 * 24);
+      return displayDate <= range;
+    })
+    .sort((a, b) => new Date(a.date) - new Date(b.date));
   console.log(weight);
   console.log(filteredWeight);
   console.log(range);
@@ -70,9 +70,9 @@ function WeightPage() {
       <div className="log">
         <h2 className="section-title">体重記録</h2>
         <div className="graph">
-          <button onClick={()=>setRange(30)}>1ヶ月</button>
-          <button onClick={()=>setRange(180)}>6ヶ月</button>
-          <button onClick={()=>setRange(365)}>1年</button>
+          <button onClick={() => setRange(30)}>1ヶ月</button>
+          <button onClick={() => setRange(180)}>6ヶ月</button>
+          <button onClick={() => setRange(365)}>1年</button>
           <ResponsiveContainer>
             <LineChart data={filteredWeight}>
               <XAxis dataKey="date"
@@ -82,21 +82,28 @@ function WeightPage() {
                   const day = String(d.getDate()).padStart(2, "0");
                   return `${month}.${day}`;
                 }}></XAxis>
-              <YAxis></YAxis>
+              <YAxis domain={['dataMin - 5','dataMax +5']}></YAxis>
               <Line dataKey="bw"></Line>
             </LineChart>
           </ResponsiveContainer>
         </div>
-        <div className="bw-date">
-        {[...weight]
-          .sort((a, b) => b.date.localeCompare(a.date))
-          .map(day => (
-            <div className="bw-item" key={day.date}>
-              <p className="date">{day.date} <button onClick={() => handleDelete(day.date)}>削除</button></p>
-              <p>{day.bw} kg</p>
-            </div>
-          ))
-        }
+        <div className="log">
+          <table>
+            <tbody>
+              {[...weight]
+                .sort((a, b) => b.date.localeCompare(a.date))
+                .map(day => (
+                  <tr key={day.date} className="date">
+                    <td>{day.date}</td>
+                    <td>{day.bw} kg</td>
+                    <td><button onClick={() => handleDelete(day.date)}>削除</button></td>
+                  </tr>
+                ))
+              }
+
+            </tbody>
+          </table>
+          
         </div>
       </div>
     </div>

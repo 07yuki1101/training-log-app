@@ -160,19 +160,16 @@ function MealPage() {
             <div key={day.date} >
               <div className="date">
                 <h3 >{day.date} <button onClick={() => handleDeleteMeal(day.date)}>削除</button>
-                </h3>
                 {openDate.includes(day.date)
                 ?(<button onClick={() => handleClose(day.date)}>↑</button>)
               :(<button onClick={() => handleOpen(day.date)}>↓</button>)}
-                
-                
+                </h3>
 
                 <p className="total">カロリー : {day.foods.reduce((sum, food) => sum + Number(food.calories), 0)} kcal <span>　</span> たんぱく質 : {day.foods.reduce((sum, food) => sum + Number(food.protein), 0)} g</p>
 
               </div>
               {openDate.includes(day.date) && (
                 <div>
-                  
                     <div>
                       <table>
                         <tbody>

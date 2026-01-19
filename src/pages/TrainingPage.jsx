@@ -176,44 +176,10 @@ function TrainingPage() {
                 {openItem.includes(day.date)
                 ?(<button onClick={() => handleCloseItem(day.date)}>↑</button>)
                 :(<button onClick={() => handleOpenItem(day.date)}>↓</button>)}
-                
-                
-
               </h3>
               {openItem.includes(day.date)&& (
                 <div>
-                  {day.items.map((item, i) => (
-                    <div className="item">
-
-                      <div className="exercise">
-                        <p>{item.exercise}</p>
-
-                      </div>
-
-                      <div className="contents">
-                        <p>{item.weight}kg</p>
-                        <p>{item.reps}reps</p>
-                        <p>{item.sets}sets</p>
-                        <button onClick={() => {
-                        setEdit({ date: day.date, index: i });
-                        setNewRecords({
-                          date: day.date,
-                          exercise: item.exercise,
-                          weight: item.weight,
-                          reps: item.reps,
-                          sets: item.sets
-                        });
-                        setShowForm(true)
-                      }}>編集</button>
-                        <button onClick={() => handleDeleteItem(day.date, i)}>削除</button>
-                      </div>
-
-                    </div>
-                  ))}
-                </div>
-              )}
-
-              {/* <table>
+                   <table>
                 <tbody>
                   {day.items.map((item, i) => (
                     <tr key={i}>
@@ -235,7 +201,11 @@ function TrainingPage() {
                     </tr>
                   ))}
                 </tbody>
-              </table> */}
+              </table>
+                </div>
+              )}
+
+              
             </div>
           ))}
         <h3>{ }</h3>
