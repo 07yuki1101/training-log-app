@@ -87,6 +87,8 @@ function MealPage() {
     setEdit(null);
   };
   const handleDeleteMeal = (date) => {
+    const ok = window.confirm("この記録を消しますか？");
+    if(!ok)return;
     const update = meals.filter(day => day.date !== date)
     setMeals(update)
   }
@@ -159,10 +161,16 @@ function MealPage() {
           .map(day => (
             <div key={day.date} >
               <div className="date">
-                <h3 >{day.date} <button onClick={() => handleDeleteMeal(day.date)}>削除</button>
-                {openDate.includes(day.date)
-                ?(<button onClick={() => handleClose(day.date)}>↑</button>)
-              :(<button onClick={() => handleOpen(day.date)}>↓</button>)}
+                <h3 >{day.date} <button onClick={() => handleDeleteMeal(day.date)}><span className="material-symbols-outlined delete">
+                  delete
+                </span></button>
+                  {openDate.includes(day.date)
+                    ? (<button className="arrow-btn" onClick={() => handleClose(day.date)}><span className="material-symbols-outlined">
+                      keyboard_arrow_up
+                    </span></button>)
+                    : (<button className="arrow-btn" onClick={() => handleOpen(day.date)}><span className="material-symbols-outlined">
+                      keyboard_arrow_down
+                    </span></button>)}
                 </h3>
 
                 <p className="total">カロリー : {day.foods.reduce((sum, food) => sum + Number(food.calories), 0)} kcal <span>　</span> たんぱく質 : {day.foods.reduce((sum, food) => sum + Number(food.protein), 0)} g</p>
@@ -170,35 +178,39 @@ function MealPage() {
               </div>
               {openDate.includes(day.date) && (
                 <div>
-                    <div>
-                      <table>
-                        <tbody>
-                          {day.foods.map((food, i) => (
-                            <tr key={i}>
-                              <td>{food.timing}</td>
-                              <td>{food.calories} kcal</td>
-                              <td>{food.protein} g</td>
-                              <td><button onClick={() => {
-                                setEdit({ date: day.date, index: i })
-                                setNewMeal({
-                                  date: day.date,
-                                  timing: food.timing,
-                                  calories: food.calories,
-                                  protein: food.protein
-                                })
-                                setShowForm(true)
-                              }}>編集</button><button onClick={() => handleDeleteFood(day.date, i)}>削除</button></td>
-                            </tr>
-                          ))}
-                        </tbody>
-                      </table>
-                    </div>
+                  <div>
+                    <table>
+                      <tbody>
+                        {day.foods.map((food, i) => (
+                          <tr key={i}>
+                            <td>{food.timing}</td>
+                            <td>{food.calories} kcal</td>
+                            <td>{food.protein} g</td>
+                            <td><button onClick={() => {
+                              setEdit({ date: day.date, index: i })
+                              setNewMeal({
+                                date: day.date,
+                                timing: food.timing,
+                                calories: food.calories,
+                                protein: food.protein
+                              })
+                              setShowForm(true)
+                            }}><span className="material-symbols-outlined edit">
+                                edit
+                              </span></button><button onClick={() => handleDeleteFood(day.date, i)}><span className="material-symbols-outlined delete">
+                                delete
+                              </span></button></td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
 
-                  
+
 
                 </div>
               )}
-              
+
             </div>
           ))
         }

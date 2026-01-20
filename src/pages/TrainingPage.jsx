@@ -107,6 +107,8 @@ function TrainingPage() {
   };
 
   const handleDeleteRecord = (date) => {
+    const ok = window.confirm("この記録を消しますか？");
+    if(!ok)return;
     const update = records.filter(day => day.date !== date);
     setRecords(update);
   };
@@ -115,7 +117,7 @@ function TrainingPage() {
     setOpenItem(prev => {
       if (prev.includes(date)) {
         return prev;
-      }return [...prev, date];
+      } return [...prev, date];
     });
   };
   const handleCloseItem = (date) => {
@@ -172,40 +174,50 @@ function TrainingPage() {
             <div key={day.date}>
               <h3 className="date">
                 {day.date}
-                <button onClick={() => handleDeleteRecord(day.date)}>削除</button>
+                <button onClick={() => handleDeleteRecord(day.date)}><span className="material-symbols-outlined delete">
+                  delete
+                </span></button>
                 {openItem.includes(day.date)
-                ?(<button onClick={() => handleCloseItem(day.date)}>↑</button>)
-                :(<button onClick={() => handleOpenItem(day.date)}>↓</button>)}
+                  ? (<button className="arrow-btn" onClick={() => handleCloseItem(day.date)}><span className="material-symbols-outlined">
+                    keyboard_arrow_up
+                  </span></button>)
+                  : (<button className="arrow-btn" onClick={() => handleOpenItem(day.date)}><span className="material-symbols-outlined">
+                    keyboard_arrow_down
+                  </span></button>)}
               </h3>
-              {openItem.includes(day.date)&& (
+              {openItem.includes(day.date) && (
                 <div>
-                   <table>
-                <tbody>
-                  {day.items.map((item, i) => (
-                    <tr key={i}>
-                      <td>{item.exercise}</td>
-                      <td>{item.weight} kg</td>
-                      <td>{item.reps} 回</td>
-                      <td>{item.sets} セット</td>
-                      <td><button onClick={() => {
-                        setEdit({ date: day.date, index: i });
-                        setNewRecords({
-                          date: day.date,
-                          exercise: item.exercise,
-                          weight: item.weight,
-                          reps: item.reps,
-                          sets: item.sets
-                        });
-                        setShowForm(true)
-                      }}>編集</button><button onClick={() => handleDeleteItem(day.date, i)}>削除</button></td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
+                  <table>
+                    <tbody>
+                      {day.items.map((item, i) => (
+                        <tr key={i}>
+                          <td>{item.exercise}</td>
+                          <td>{item.weight} kg</td>
+                          <td>{item.reps} 回</td>
+                          <td>{item.sets} セット</td>
+                          <td><button onClick={() => {
+                            setEdit({ date: day.date, index: i });
+                            setNewRecords({
+                              date: day.date,
+                              exercise: item.exercise,
+                              weight: item.weight,
+                              reps: item.reps,
+                              sets: item.sets
+                            });
+                            setShowForm(true)
+                          }}><span className="material-symbols-outlined edit">
+                              edit
+                            </span></button><button onClick={() => handleDeleteItem(day.date, i)}><span className="material-symbols-outlined delete">
+                              delete
+                            </span></button></td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
                 </div>
               )}
 
-              
+
             </div>
           ))}
         <h3>{ }</h3>

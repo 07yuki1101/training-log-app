@@ -15,7 +15,15 @@ header {
   border-bottom: 1px solid #eeeeee67;
   box-shadow: 0 10px 40px rgba(0, 0, 0, 1);
 }
+ button{
+  background: none;
+  padding: 0px;
+  color: #f8fcfc;
+ }
 
+ h1{
+  cursor: pointer;
+ }
 /* フォーム */
 .form {
   max-width: 600px;
@@ -46,7 +54,7 @@ input[type="date"] {
 
 
 .add-btn {
-  background: #27c962;
+  background: #22c55e;
   color: #ffffff;
   border: none;
   border-radius: 30px;
@@ -112,6 +120,7 @@ table td{
   color: #ff7b00;
 }
 
+
 /* タブページ */
 .home {
   display: flex;
@@ -145,8 +154,15 @@ table td{
 }
 .page button{
   display: block;
-  width: 40px;
-  height: 40px;
+  width: 60px;
+  height: 60px;
+  transition: .3s;
+}
+.page button:hover{
+  background: #1a2848;
+}
+.page .material-symbols-outlined{
+  font-size: 40px;
 
 }
 

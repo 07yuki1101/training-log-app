@@ -31,6 +31,8 @@ function WeightPage() {
     };
   };
   const handleDelete = (date) => {
+    const ok = window.confirm("この記録を消しますか？");
+    if(!ok)return;
     const update = weight.filter(day => day.date !== date);
     setWeight(update);
   }
@@ -43,9 +45,7 @@ function WeightPage() {
       return displayDate <= range;
     })
     .sort((a, b) => new Date(a.date) - new Date(b.date));
-  console.log(weight);
-  console.log(filteredWeight);
-  console.log(range);
+
   return (
     <div>
       <div>
@@ -82,7 +82,7 @@ function WeightPage() {
                   const day = String(d.getDate()).padStart(2, "0");
                   return `${month}.${day}`;
                 }}></XAxis>
-              <YAxis domain={['dataMin - 5','dataMax +5']}></YAxis>
+              <YAxis domain={['dataMin - 5', 'dataMax +5']}></YAxis>
               <Line dataKey="bw"></Line>
             </LineChart>
           </ResponsiveContainer>
@@ -96,14 +96,16 @@ function WeightPage() {
                   <tr key={day.date} className="date">
                     <td>{day.date}</td>
                     <td>{day.bw} kg</td>
-                    <td><button onClick={() => handleDelete(day.date)}>削除</button></td>
+                    <td><button onClick={() => handleDelete(day.date)}><span className="material-symbols-outlined">
+                      delete
+                    </span></button></td>
                   </tr>
                 ))
               }
 
             </tbody>
           </table>
-          
+
         </div>
       </div>
     </div>

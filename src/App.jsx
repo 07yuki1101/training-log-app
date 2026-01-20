@@ -12,7 +12,7 @@ function App() {
   return (
     <div>
       <header>
-        <h1>Training Log</h1>
+        <h1 onClick={()=>setPage(null)}>Training Log</h1>
       </header>
       <Tabs page={page} setPage={setPage} />
       {page === 'training' && <TrainingPage />}
