@@ -88,7 +88,7 @@ function MealPage() {
   };
   const handleDeleteMeal = (date) => {
     const ok = window.confirm("この記録を消しますか？");
-    if(!ok)return;
+    if (!ok) return;
     const update = meals.filter(day => day.date !== date)
     setMeals(update)
   }
@@ -160,17 +160,20 @@ function MealPage() {
           .sort((a, b) => b.date.localeCompare(a.date))
           .map(day => (
             <div key={day.date} >
-              <div className="date">
-                <h3 >{day.date} <button onClick={() => handleDeleteMeal(day.date)}><span className="material-symbols-outlined delete">
-                  delete
-                </span></button>
+              <div className="meal-log">
+                <h3 className="date" >{day.date}
+                  <div className="date-btn">
+                  <button onClick={() => handleDeleteMeal(day.date)}><span className="material-symbols-outlined delete">
+                    delete
+                  </span></button>
                   {openDate.includes(day.date)
-                    ? (<button className="arrow-btn" onClick={() => handleClose(day.date)}><span className="material-symbols-outlined">
+                    ? (<button className="arrow-btn" onClick={() => handleClose(day.date)}><span className="material-symbols-outlined arrow">
                       keyboard_arrow_up
                     </span></button>)
-                    : (<button className="arrow-btn" onClick={() => handleOpen(day.date)}><span className="material-symbols-outlined">
+                    : (<button className="arrow-btn" onClick={() => handleOpen(day.date)}><span className="material-symbols-outlined arrow">
                       keyboard_arrow_down
                     </span></button>)}
+                    </div>
                 </h3>
 
                 <p className="total">カロリー : {day.foods.reduce((sum, food) => sum + Number(food.calories), 0)} kcal <span>　</span> たんぱく質 : {day.foods.reduce((sum, food) => sum + Number(food.protein), 0)} g</p>

@@ -32,7 +32,7 @@ function WeightPage() {
   };
   const handleDelete = (date) => {
     const ok = window.confirm("この記録を消しますか？");
-    if(!ok)return;
+    if (!ok) return;
     const update = weight.filter(day => day.date !== date);
     setWeight(update);
   }
@@ -48,10 +48,13 @@ function WeightPage() {
 
   return (
     <div>
-      <div>
-        <div className="form-switch">
-          <button className="add-btn" onClick={() => setShowForm(true)}>体重を追加</button>
-        </div>
+      <div >
+        {!showForm && (
+          <div className="form-switch">
+            <button className="add-btn" onClick={() => setShowForm(true)}>体重を追加</button>
+          </div>
+        )}
+
         {showForm && (
           <div className="form">
             <input type="date"
@@ -64,30 +67,37 @@ function WeightPage() {
               onChange={(e) => setNewWeight({ ...newWeight, bw: e.target.value })} />
 
             <button className="add-btn" onClick={handleAddWeight}>追加</button>
+            <button className="cancel-btn" onClick={() => { setShowForm(false); setNewWeight({ date: '', bw: '' }) }}>×</button>
           </div>
         )}
+
       </div>
-      <div className="log">
-        <h2 className="section-title">体重記録</h2>
+      <div >
+
         <div className="graph">
-          <button onClick={() => setRange(30)}>1ヶ月</button>
-          <button onClick={() => setRange(180)}>6ヶ月</button>
-          <button onClick={() => setRange(365)}>1年</button>
-          <ResponsiveContainer>
-            <LineChart data={filteredWeight}>
-              <XAxis dataKey="date"
-                tickFormatter={(value) => {
-                  const d = new Date(value);
-                  const month = d.getMonth() + 1;
-                  const day = String(d.getDate()).padStart(2, "0");
-                  return `${month}.${day}`;
-                }}></XAxis>
-              <YAxis domain={['dataMin - 5', 'dataMax +5']}></YAxis>
-              <Line dataKey="bw"></Line>
-            </LineChart>
-          </ResponsiveContainer>
+          <div className="graph-switch">
+            <button onClick={() => setRange(30)}>1ヶ月</button>
+            <button onClick={() => setRange(180)}>6ヶ月</button>
+            <button onClick={() => setRange(365)}>1年</button>
+          </div>
+          <div className="graph-style">
+            <ResponsiveContainer width="100%" height={250}>
+              <LineChart data={filteredWeight}>
+                <XAxis dataKey="date"
+                  tickFormatter={(value) => {
+                    const d = new Date(value);
+                    const month = d.getMonth() + 1;
+                    const day = String(d.getDate()).padStart(2, "0");
+                    return `${month}.${day}`;
+                  }}></XAxis>
+                <YAxis domain={['dataMin - 5', 'dataMax +5']}></YAxis>
+                <Line dataKey="bw"></Line>
+              </LineChart>
+            </ResponsiveContainer>
+          </div>
         </div>
-        <div className="log">
+        <div className="weight-log">
+          <h2 className="section-title">体重記録</h2>
           <table>
             <tbody>
               {[...weight]
@@ -96,7 +106,7 @@ function WeightPage() {
                   <tr key={day.date} className="date">
                     <td>{day.date}</td>
                     <td>{day.bw} kg</td>
-                    <td><button onClick={() => handleDelete(day.date)}><span className="material-symbols-outlined">
+                    <td><button onClick={() => handleDelete(day.date)}><span className="material-symbols-outlined delete">
                       delete
                     </span></button></td>
                   </tr>

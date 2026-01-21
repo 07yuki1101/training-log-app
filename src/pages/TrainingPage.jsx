@@ -108,7 +108,7 @@ function TrainingPage() {
 
   const handleDeleteRecord = (date) => {
     const ok = window.confirm("この記録を消しますか？");
-    if(!ok)return;
+    if (!ok) return;
     const update = records.filter(day => day.date !== date);
     setRecords(update);
   };
@@ -174,16 +174,18 @@ function TrainingPage() {
             <div key={day.date}>
               <h3 className="date">
                 {day.date}
-                <button onClick={() => handleDeleteRecord(day.date)}><span className="material-symbols-outlined delete">
-                  delete
-                </span></button>
-                {openItem.includes(day.date)
-                  ? (<button className="arrow-btn" onClick={() => handleCloseItem(day.date)}><span className="material-symbols-outlined">
-                    keyboard_arrow_up
-                  </span></button>)
-                  : (<button className="arrow-btn" onClick={() => handleOpenItem(day.date)}><span className="material-symbols-outlined">
-                    keyboard_arrow_down
-                  </span></button>)}
+                <div className="date-btn">
+                  <button onClick={() => handleDeleteRecord(day.date)}><span className="material-symbols-outlined delete">
+                    delete
+                  </span></button>
+                  {openItem.includes(day.date)
+                    ? (<button className="arrow-btn" onClick={() => handleCloseItem(day.date)}><span className="material-symbols-outlined arrow">
+                      keyboard_arrow_up
+                    </span></button>)
+                    : (<button className="arrow-btn" onClick={() => handleOpenItem(day.date)}><span className="material-symbols-outlined arrow">
+                      keyboard_arrow_down
+                    </span></button>)}
+                </div>
               </h3>
               {openItem.includes(day.date) && (
                 <div>
@@ -191,11 +193,11 @@ function TrainingPage() {
                     <tbody>
                       {day.items.map((item, i) => (
                         <tr key={i}>
-                          <td>{item.exercise}</td>
-                          <td>{item.weight} kg</td>
-                          <td>{item.reps} 回</td>
-                          <td>{item.sets} セット</td>
-                          <td><button onClick={() => {
+                          <td className="train-name">{item.exercise}</td>
+                          <td className="train-weight">{item.weight} kg</td>
+                          <td className="train-reps">{item.reps} reps</td>
+                          <td className="train-sets">{item.sets} sets</td>
+                          <td className="train-action"><button onClick={() => {
                             setEdit({ date: day.date, index: i });
                             setNewRecords({
                               date: day.date,
