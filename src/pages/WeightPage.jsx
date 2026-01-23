@@ -1,6 +1,8 @@
+import { collection, getDocs, addDoc, deleteDoc, doc } from "firebase/firestore";
+import { db } from "../firebase"
 import { useEffect, useState, } from "react";
 import { LineChart, Line, XAxis, YAxis, ResponsiveContainer } from "recharts";
-function WeightPage() {
+function WeightPage({ user }) {
   const [weight, setWeight] = useState(() => {
     const saved = localStorage.getItem("weight");
     return saved ? JSON.parse(saved) : [];
@@ -11,24 +13,63 @@ function WeightPage() {
   });
 
   useEffect(() => {
-    localStorage.setItem("weight", JSON.stringify(weight));
-  }, [weight]);
+    if (!user) return;
 
-  const handleAddWeight = () => {
+    const fetchWeight = async () => {
+      try {
+        const querySnapshot = await getDocs(
+          collection(db, 'users', user.uid, 'weights')
+        );
+        const data = querySnapshot.docs.map(doc => ({
+          id: doc.id,
+          ...doc.data()
+        }));
+        setWeight(data);
+      } catch (error) {
+        console.error('Firestore読み込みエラー', error);
+      }
+    };
+    fetchWeight();
+  }, [user]);
+
+  // useEffect(() => {
+  //   localStorage.setItem("weight", JSON.stringify(weight));
+  // }, [weight]);
+
+  const handleAddWeight = async () => {
+    console.log('user:',user)
+    console.log('newWeight:',newWeight)
     if (!newWeight.bw) {
       alert('体重を入力してください')
       return
-    } else {
-      setWeight([
-        ...weight,
+    }
+    try {
+      await addDoc(
+        collection(db, 'users', user.uid, 'weights'),
         {
           date: newWeight.date,
-          bw: Number(newWeight.bw)
+          bw: Number(newWeight.bw),
         }
-      ])
+      );
+
+      const querySnapshot = await getDocs(
+        collection(db, 'users', user.uid, 'weights')
+      );
+
+      const data = querySnapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data(),
+      }));
+
+      setWeight(data);
+
       setNewWeight({ date: '', bw: '' });
       setShowForm(false);
-    };
+
+    } catch (error) {
+      console.error('firestore保存エラー:', error);
+    }
+
   };
   const handleDelete = (date) => {
     const ok = window.confirm("この記録を消しますか？");

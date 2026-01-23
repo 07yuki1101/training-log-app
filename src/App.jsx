@@ -31,7 +31,7 @@ function App() {
       <Tabs page={page} setPage={setPage} />
       {page === 'training' && <TrainingPage />}
       {page === 'meal' && <MealPage />}
-      {page === 'weight' && <WeightPage />}
+      {page === 'weight' && <WeightPage user={user}/>}
       
     </div>
   )
