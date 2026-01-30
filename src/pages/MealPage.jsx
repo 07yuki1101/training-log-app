@@ -1,6 +1,8 @@
 import { useState, useEffect } from "react";
+import { collection, getDocs, addDoc, deleteDoc, updateDoc, doc } from "firebase/firestore";
+import { db } from "../firebase";
 
-function MealPage() {
+function MealPage({ user }) {
   const [meals, setMeals] = useState(() => {
     const saved = localStorage.getItem("meals");
     return saved ? JSON.parse(saved) : [];
@@ -15,107 +17,108 @@ function MealPage() {
     { id: 2, time: '夕食' },
     { id: 3, time: '間食' },
   ];
+  const [editMeal, setEditMeal] = useState(null);
+  const fetchMeals = async () => {
+    const querySnapshot = await getDocs(
+      collection(db, 'users', user.uid, 'meals')
+    );
+    const data = querySnapshot.docs.map(doc => ({
+      id: doc.id,
+      ...doc.data()
+    }));
+    setMeals(data);
 
+  };
 
   useEffect(() => {
-    localStorage.setItem("meals", JSON.stringify(meals));
-  }, [meals])
-  const [edit, setEdit] = useState(null);
-  const noDate =
-    !newMeal.date;
+    if (!user) return;
+    fetchMeals();
+  }, [user])
 
-  const handleAddMeals = () => {
-    if (noDate) {
-      alert('日付を入れてください')
-      return
+
+
+  const handleAddMeals = async () => {
+    if (!user) return;
+    if (!newMeal.date || !newMeal.timing) {
+      alert('日付とタイミングは必須です');
+      return;
     }
-    if (edit) {
-      const update = meals.map(meal => {
-        if (meal.date === edit.date) {
-          return {
-            ...meal,
-            foods: meal.foods.map((food, i) => {
-              if (i === edit.index) {
-                return {
-                  timing: newMeal.timing,
-                  calories: Number(newMeal.calories),
-                  protein: Number(newMeal.protein),
-                }
-              } return food;
-            })
-          };
-        } return meal;
-      });
-      setMeals(update);
 
-
-    } else {
-      const sameDate = meals.find(m => m.date === newMeal.date)
-      if (sameDate) {
-        const update = meals.map(meal => {
-          if (meal.date === newMeal.date) {
-            return {
-              ...meal, foods: [...meal.foods,
-              {
-                timing: newMeal.timing,
-                calories: Number(newMeal.calories),
-                protein: Number(newMeal.protein),
-              }
-              ]
-            };
-          } return meal;
-        })
-        setMeals(update);
-      } else {
-        setMeals([
-          ...meals,
+    try {
+      if (editMeal) {
+        await updateDoc(
+          doc(db, 'users', user.uid, 'meals', editMeal.id),
           {
             date: newMeal.date,
-            foods: [
-              {
-                timing: newMeal.timing,
-                calories: Number(newMeal.calories),
-                protein: Number(newMeal.protein),
-              }
-            ]
+            timing: newMeal.timing,
+            calories: Number(newMeal.calories),
+            protein: Number(newMeal.protein),
           }
-        ])
-      };
+        )
+      } else {
+        await addDoc(
+          collection(db, 'users', user.uid, 'meals'),
+          {
+            date: newMeal.date,
+            timing: newMeal.timing,
+            calories: Number(newMeal.calories),
+            protein: Number(newMeal.protein),
+          }
+        );
+      }
+
+      await fetchMeals();
+      setNewMeal({ date: '', timing: '', calories: '', protein: '' });
+      setEditMeal(null)
+      setShowForm(false);
+    } catch (error) {
+      console.error('保存エラー:', error);
     }
-    setNewMeal({ date: '', timing: '', calories: '', protein: '' });
-    setShowForm(false);
-    setEdit(null);
   };
-  const handleDeleteMeal = (date) => {
+
+  const handleDeleteMeal = async (date) => {
     const ok = window.confirm("この記録を消しますか？");
     if (!ok) return;
-    const update = meals.filter(day => day.date !== date)
-    setMeals(update)
+    const targets = meals.filter(m => m.date === date);
+    await Promise.all(
+      targets.map(m =>
+        deleteDoc(doc(db, 'users', user.uid, 'meals', m.id))
+      )
+    );
+
+    fetchMeals();
   }
-  const handleDeleteFood = (date, index) => {
-    const update = meals.map(day => {
-      if (day.date === date) {
-        return {
-          ...day,
-          foods: day.foods.filter((_, i) => i !== index)
-        }
-      } return day;
-    })
-    setMeals(update);
+  const handleDeleteFood = async (foodId) => {
+    const ok = window.confirm('削除しますか？');
+    if (!ok) return;
+
+    await deleteDoc(
+      doc(db, 'users', user.uid, 'meals', foodId)
+    );
+    fetchMeals();
   }
 
   const [openDate, setOpenDate] = useState([]);
-  const handleOpen = (date) => {
-    setOpenDate(prev => {
-      if (prev.includes(date)) {
-        return prev;
-      } return [...prev, date];
-    });
-  };
-  const handleClose = (date) => {
-    setOpenDate(prev => prev.filter(d => d !== date));
+
+  const toggleDate = (date) => {
+    setOpenDate(prev =>
+      prev.includes(date)
+        ? prev.filter(d => d !== date)
+        : [...prev, date]
+    );
   };
 
+
+  const groupedMeals = meals.reduce((acc, meal) => {
+    if (!acc[meal.date]) {
+      acc[meal.date] = {
+        date: meal.date,
+        foods: []
+      };
+    }
+    acc[meal.date].foods.push(meal);
+    return acc;
+  }, {});
   return (
     <div>
 
@@ -147,76 +150,68 @@ function MealPage() {
             value={newMeal.protein}
             placeholder="たんぱく質"
             onChange={(e) => setNewMeal({ ...newMeal, protein: e.target.value })} />
-          {!edit && (<button className="add-btn" onClick={handleAddMeals}>追加</button>)}
-          {edit && (<button className="add-btn" onClick={handleAddMeals}>更新</button>)}
+          <button className="add-btn" onClick={handleAddMeals}>{editMeal ? '更新' : '追加'}</button>
+          {/* {edit && (<button className="add-btn" onClick={handleAddMeals}>更新</button>)} */}
 
-          <button className="cancel-btn" onClick={() => { setShowForm(false); setEdit(null); setNewMeal({ date: '', timing: '', calories: '', protein: '' }) }}>×</button>
+          <button className="cancel-btn" onClick={() => { setShowForm(false); setNewMeal({ date: '', timing: '', calories: '', protein: '' }); setEditMeal(null) }}>×</button>
         </div>
       )}
 
       <div className="log">
         <h2 className="section-title">食事記録</h2>
-        {[...meals]
+        {Object.values(groupedMeals)
           .sort((a, b) => b.date.localeCompare(a.date))
           .map(day => (
-            <div key={day.date} >
-              <div className="meal-log">
-                <h3 className="date" >{day.date}
-                  <div className="date-btn">
-                  <button onClick={() => handleDeleteMeal(day.date)}><span className="material-symbols-outlined delete">
-                    delete
-                  </span></button>
-                  {openDate.includes(day.date)
-                    ? (<button className="arrow-btn" onClick={() => handleClose(day.date)}><span className="material-symbols-outlined arrow">
+            <div key={day.date}>
+              <div className="date">
+                <h3>{day.date}</h3>
+                <p className="total">
+                  カロリー: {day.foods.reduce((sum, f) => sum + Number(f.calories), 0)} kcal
+                  たんぱく質: {day.foods.reduce((sum, f) => sum + Number(f.protein), 0)} g
+                </p>
+                <button onClick={() => handleDeleteMeal(day.date)}><span className="material-symbols-outlined delete">
+                  delete
+                </span></button>
+                <button onClick={() => toggleDate(day.date)}>{openDate.includes(day.date) ? <span className="material-symbols-outlined arrow">
                       keyboard_arrow_up
-                    </span></button>)
-                    : (<button className="arrow-btn" onClick={() => handleOpen(day.date)}><span className="material-symbols-outlined arrow">
+                    </span> : <span className="material-symbols-outlined arrow">
                       keyboard_arrow_down
-                    </span></button>)}
-                    </div>
-                </h3>
-
-                <p className="total">カロリー : {day.foods.reduce((sum, food) => sum + Number(food.calories), 0)} kcal <span>　</span> たんぱく質 : {day.foods.reduce((sum, food) => sum + Number(food.protein), 0)} g</p>
-
+                    </span>}</button>
               </div>
               {openDate.includes(day.date) && (
-                <div>
-                  <div>
-                    <table>
-                      <tbody>
-                        {day.foods.map((food, i) => (
-                          <tr key={i}>
-                            <td>{food.timing}</td>
-                            <td>{food.calories} kcal</td>
-                            <td>{food.protein} g</td>
-                            <td><button onClick={() => {
-                              setEdit({ date: day.date, index: i })
-                              setNewMeal({
-                                date: day.date,
-                                timing: food.timing,
-                                calories: food.calories,
-                                protein: food.protein
-                              })
-                              setShowForm(true)
-                            }}><span className="material-symbols-outlined edit">
-                                edit
-                              </span></button><button onClick={() => handleDeleteFood(day.date, i)}><span className="material-symbols-outlined delete">
-                                delete
-                              </span></button></td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
-                  </div>
-
-
-
-                </div>
+                <table>
+                  <tbody>
+                    {day.foods.map(food => (
+                      <tr key={food.id}>
+                        <td>{food.timing}</td>
+                        <td>{food.calories}</td>
+                        <td>{food.protein}</td>
+                        <td>
+                          <button onClick={() => handleDeleteFood(food.id)}><span className="material-symbols-outlined delete">
+                            delete
+                          </span></button>
+                          <button onClick={() => {
+                            setEditMeal(food); setNewMeal({
+                              date: day.date,
+                              timing: food.timing,
+                              calories: food.calories,
+                              protein: food.protein
+                            })
+                            setShowForm(true)
+                          }}><span className="material-symbols-outlined edit">
+                              edit
+                            </span></button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
               )}
 
             </div>
           ))
         }
+
       </div>
     </div>
   )

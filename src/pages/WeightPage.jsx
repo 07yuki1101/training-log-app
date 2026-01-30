@@ -71,12 +71,18 @@ function WeightPage({ user }) {
     }
 
   };
-  const handleDelete = (date) => {
+  const handleDelete = async(id) => {
     const ok = window.confirm("この記録を消しますか？");
     if (!ok) return;
-    const update = weight.filter(day => day.date !== date);
-    setWeight(update);
-  }
+    try{
+      await deleteDoc(
+        doc(db,'users',user.uid,'weights',id)
+      );
+      setWeight(prev=> prev.filter(item=>item.id !== id))
+    }catch(error){
+      console.error('削除エラー:',error);
+    }
+  };
   const [range, setRange] = useState(30);
   const filteredWeight = weight
     .filter(item => {
@@ -87,6 +93,8 @@ function WeightPage({ user }) {
     })
     .sort((a, b) => new Date(a.date) - new Date(b.date));
 
+    console.log(weight)
+    
   return (
     <div>
       <div >
@@ -144,10 +152,10 @@ function WeightPage({ user }) {
               {[...weight]
                 .sort((a, b) => b.date.localeCompare(a.date))
                 .map(day => (
-                  <tr key={day.date} className="date">
+                  <tr key={day.id} className="date">
                     <td>{day.date}</td>
                     <td>{day.bw} kg</td>
-                    <td><button onClick={() => handleDelete(day.date)}><span className="material-symbols-outlined delete">
+                    <td><button onClick={() => handleDelete(day.id)}><span className="material-symbols-outlined delete">
                       delete
                     </span></button></td>
                   </tr>
