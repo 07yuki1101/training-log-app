@@ -29,7 +29,7 @@ function App() {
         <h1 onClick={() => setPage(null)}>Training Log</h1>
       </header>
       <Tabs page={page} setPage={setPage} />
-      {page === 'training' && <TrainingPage />}
+      {page === 'training' && <TrainingPage user={user}/>}
       {page === 'meal' && <MealPage user={user} />}
       {page === 'weight' && <WeightPage user={user} />}
 

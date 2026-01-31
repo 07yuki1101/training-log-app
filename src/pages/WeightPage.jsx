@@ -32,9 +32,7 @@ function WeightPage({ user }) {
     fetchWeight();
   }, [user]);
 
-  // useEffect(() => {
-  //   localStorage.setItem("weight", JSON.stringify(weight));
-  // }, [weight]);
+
 
   const handleAddWeight = async () => {
     console.log('user:',user)

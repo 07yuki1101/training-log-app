@@ -1,230 +1,216 @@
 import { useState, useEffect } from "react"
-function TrainingPage() {
-  const [records, setRecords] = useState(() => {
-    const saved = localStorage.getItem("records");
-    return saved ? JSON.parse(saved) : [];
-  });
+import { collection, getDocs, addDoc, deleteDoc, updateDoc, doc } from "firebase/firestore";
+import { db } from "../firebase";
+
+function TrainingPage({ user }) {
+  const [records, setRecords] = useState([]);
   const [showForm, setShowForm] = useState(false);
   const [newRecords, setNewRecords] = useState({
     date: '', exercise: '', weight: '', reps: '', sets: ''
   });
 
-  useEffect(() => {
-    localStorage.setItem("records", JSON.stringify(records));
-  }, [records]);
+  const [editRecord, setEditRecord] = useState(null);
 
-
-  const [edit, setEdit] = useState(null);
-  const isInvalid =
-    !newRecords.date ||
-    !newRecords.exercise ||
-    !newRecords.reps ||
-    !newRecords.sets;
-
-  const handleAddRecord = () => {
-    if (edit) {
-      const update = records.map(day => {
-        if (day.date === edit.date) {
-          return {
-            ...day,
-            items: day.items.map((item, i) => {
-              if (i === edit.index) {
-                return {
-                  exercise: newRecords.exercise,
-                  weight: newRecords.weight,
-                  reps: newRecords.reps,
-                  sets: newRecords.sets,
-                }
-              } return item;
-            })
-          };
-        } return day;
-      });
-      setRecords(update);
-      setEdit(null);
-    } else {
-      if (isInvalid) {
-        alert('全て入力してください')
-        return
-      } else {
-        const existing = records.find(r => r.date === newRecords.date)
-        if (existing) {
-          const update = records.map(record => {
-            if (record.date === newRecords.date) {
-              return {
-                ...record, items: [...record.items,
-                {
-                  exercise: newRecords.exercise,
-                  weight: newRecords.weight,
-                  reps: newRecords.reps,
-                  sets: newRecords.sets,
-                }
-                ]
-              }
-            } else {
-              return record
-            };
-          });
-          setRecords(update);
-        } else {
-          setRecords([
-            ...records,
-            {
-              date: newRecords.date,
-              items: [
-                {
-                  exercise: newRecords.exercise,
-                  weight: newRecords.weight,
-                  reps: newRecords.reps,
-                  sets: newRecords.sets,
-                }
-              ]
-            }
-          ]);
-        }
-
-
-        // setShowForm(false)
-      }
-    }
-    setNewRecords({ date: '', exercise: '', weight: '', reps: '', sets: '' })
-    setEdit(null)
-    setShowForm(false)
+  const fetchRecords = async () => {
+    const querySnapshot = await getDocs(
+      collection(db, 'users', user.uid, 'records')
+    );
+    const data = querySnapshot.docs.map(doc => ({
+      id: doc.id,
+      ...doc.data()
+    }))
+    setRecords(data);
   }
 
+  useEffect(() => {
+    if (!user) return;
+    fetchRecords();
+  }, [user]);
 
 
-  const handleDeleteItem = (date, index) => {
-    const update = records.map(day => {
-      if (day.date === date) {
-        return {
-          ...day,
-          items: day.items.filter((_, i) => i !== index)
-        }
-      } return day;
-    });
-    setRecords(update)
+  const handleAddRecord = async () => {
+    console.log('handleAddRecords Start', newRecords);
+    if (!user) {
+      console.log('user is null')
+      return;
+    }
+    if (!newRecords.date) {
+      alert('日付を入れてください');
+      return;
+    }
+    try {
+      if (editRecord) {
+        await updateDoc(
+          doc(db, 'users', user.uid, 'records', editRecord.id),
+          {
+            date: newRecords.date,
+            exercise: newRecords.exercise,
+            weight: Number(newRecords.weight),
+            reps: Number(newRecords.reps),
+            sets: Number(newRecords.sets)
+          }
+        );
+      } else {
+        await addDoc(
+          collection(db, 'users', user.uid, 'records'),
+          {
+            date: newRecords.date,
+            exercise: newRecords.exercise,
+            weight: Number(newRecords.weight),
+            reps: Number(newRecords.reps),
+            sets: Number(newRecords.sets)
+          }
+        );
+      }
+
+      await fetchRecords();
+      setNewRecords({ date: '', exercise: '', weight: '', reps: '', sets: '' });
+      setEditRecord(null)
+      setShowForm(false);
+      console.log('✅ handleAddRecord END');
+    } catch (error) {
+      console.error('保存エラー:', error);
+    }
   };
 
-  const handleDeleteRecord = (date) => {
-    const ok = window.confirm("この記録を消しますか？");
+  const handleDeleteDate = async (date) => {
+    const ok = window.confirm('削除しますか？')
     if (!ok) return;
-    const update = records.filter(day => day.date !== date);
-    setRecords(update);
-  };
+    const target = records.filter(r => r.date === date)
+    await Promise.all(
+      target.map(r =>
+        deleteDoc(doc(db, 'users', user.uid, 'records', r.id))
+      )
+    );
+    fetchRecords();
+  }
+
+  const handleDeleteItem = async (itemId) => {
+    const ok = window.confirm('削除しますか？')
+    if (!ok) return;
+    await deleteDoc(doc(db, 'users', user.uid, 'records', itemId));
+    fetchRecords();
+  }
+
   const [openItem, setOpenItem] = useState([]);
-  const handleOpenItem = (date) => {
-    setOpenItem(prev => {
-      if (prev.includes(date)) {
-        return prev;
-      } return [...prev, date];
-    });
-  };
-  const handleCloseItem = (date) => {
-    setOpenItem(prev => prev.filter(d => d !== date))
-  };
+  const toggleItem = (date) => {
+    setOpenItem(prev =>
+      prev.includes(date)
+        ? prev.filter(i => i !== date)
+        : [...prev, date]
+    );
+  }
+
+  const groupedRecords = records.reduce((acc, record) => {
+    if (!acc[record.date]) {
+      acc[record.date] = {
+        date: record.date,
+        items: []
+      };
+    }
+    acc[record.date].items.push(record);
+    return acc;
+  }, {})
+
+
+
+
+
 
   return (
     <div>
-      <div>
-        {!showForm && (
-          <div className="form-switch">
-            <button className="add-btn" onClick={() => setShowForm(true)}>トレーニングを追加</button>
-          </div>
-        )}
-        {showForm && (
-          <div className="form">
-            <input type="date"
-              value={newRecords.date}
-              onChange={(e) => setNewRecords({ ...newRecords, date: e.target.value })} />
-            <input type="text"
-              placeholder="種目"
-              value={newRecords.exercise}
-              onChange={(e) => setNewRecords({ ...newRecords, exercise: e.target.value })} />
+      {!showForm &&
+        <div className="form-switch">
+          <button className="add-btn" onClick={() => setShowForm(true)}>トレーニングを追加</button>
+        </div>
+      }
+      {showForm && (
+        <div className="form">
+          <input type="date"
+            value={newRecords.date}
+            onChange={(e) => setNewRecords({ ...newRecords, date: e.target.value })} />
 
-            <input type="number"
-              placeholder="重さ（kg）"
-              value={newRecords.weight}
-              onChange={(e) => setNewRecords({ ...newRecords, weight: e.target.value })} />
+          <input type="text"
+            placeholder="種目"
+            value={newRecords.exercise}
+            onChange={(e) => setNewRecords({ ...newRecords, exercise: e.target.value })} />
 
-            <input type="number"
-              placeholder="回数"
-              value={newRecords.reps}
-              onChange={(e) => setNewRecords({ ...newRecords, reps: e.target.value })} />
+          <input type="number"
+            placeholder="重さ（kg）"
+            value={newRecords.weight}
+            onChange={(e) => setNewRecords({ ...newRecords, weight: e.target.value })} />
 
-            <input type="number"
-              placeholder="セット数"
-              value={newRecords.sets}
-              onChange={(e) => setNewRecords({ ...newRecords, sets: e.target.value })} />
-            {!edit &&
-              <button className="add-btn" onClick={handleAddRecord}>追加</button>
-            }
-            {edit && (
-              <button className="add-btn" onClick={handleAddRecord}>更新</button>
-            )}
-            <button className="cancel-btn" onClick={() => { setShowForm(false); setEdit(null); setNewRecords({ date: '', exercise: '', weight: '', reps: '', sets: '' }) }}>×</button>
-          </div>
-        )}
-      </div>
+          <input type="number"
+            placeholder="回数"
+            value={newRecords.reps}
+            onChange={(e) => setNewRecords({ ...newRecords, reps: e.target.value })} />
+
+          <input type="number"
+            placeholder="セット数"
+            value={newRecords.sets}
+            onChange={(e) => setNewRecords({ ...newRecords, sets: e.target.value })} />
+
+          <button className="add-btn" onClick={handleAddRecord}>{editRecord ? '更新' : '追加'}</button>
+
+          <button className="cancel-btn" onClick={() => { setShowForm(false); setNewRecords({ date: '', exercise: '', weight: '', reps: '', sets: '' }) }}>×</button>
+        </div>
+      )}
+
       <div className="log">
         <h2 className="section-title">トレーニング記録</h2>
-        {[...records]
+        {Object.values(groupedRecords)
           .sort((a, b) => b.date.localeCompare(a.date))
           .map(day => (
             <div key={day.date}>
-              <h3 className="date">
-                {day.date}
-                <div className="date-btn">
-                  <button onClick={() => handleDeleteRecord(day.date)}><span className="material-symbols-outlined delete">
+              <div className="date">
+                <h3>{day.date}</h3>
+                <div>
+                  <button onClick={() => handleDeleteDate(day.date)}><span className="material-symbols-outlined delete">
                     delete
                   </span></button>
-                  {openItem.includes(day.date)
-                    ? (<button className="arrow-btn" onClick={() => handleCloseItem(day.date)}><span className="material-symbols-outlined arrow">
-                      keyboard_arrow_up
-                    </span></button>)
-                    : (<button className="arrow-btn" onClick={() => handleOpenItem(day.date)}><span className="material-symbols-outlined arrow">
-                      keyboard_arrow_down
-                    </span></button>)}
+                  <button onClick={() => toggleItem(day.date)}>{openItem.includes(day.date) ? <span className="material-symbols-outlined arrow">
+                    keyboard_arrow_up
+                  </span> : <span className="material-symbols-outlined arrow">
+                    keyboard_arrow_down
+                  </span>}</button>
                 </div>
-              </h3>
+
+              </div>
               {openItem.includes(day.date) && (
-                <div>
-                  <table>
-                    <tbody>
-                      {day.items.map((item, i) => (
-                        <tr key={i}>
-                          <td className="train-name">{item.exercise}</td>
-                          <td className="train-weight">{item.weight} kg</td>
-                          <td className="train-reps">{item.reps} reps</td>
-                          <td className="train-sets">{item.sets} sets</td>
-                          <td className="train-action"><button onClick={() => {
-                            setEdit({ date: day.date, index: i });
-                            setNewRecords({
-                              date: day.date,
-                              exercise: item.exercise,
-                              weight: item.weight,
-                              reps: item.reps,
-                              sets: item.sets
-                            });
-                            setShowForm(true)
-                          }}><span className="material-symbols-outlined edit">
-                              edit
-                            </span></button><button onClick={() => handleDeleteItem(day.date, i)}><span className="material-symbols-outlined delete">
-                              delete
-                            </span></button></td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
+                <table>
+                  <tbody>
+                    {day.items.map(item => (
+                      <tr key={item.id}>
+                        <td>{item.exercise}</td>
+                        <td>{item.weight} kg</td>
+                        <td>{item.reps} 回</td>
+                        <td>{item.sets} set</td>
+                        <td><button onClick={() => {
+                          setShowForm(true); setEditRecord(item); setNewRecords({
+                            date: day.date,
+                            exercise: item.exercise,
+                            weight: item.weight,
+                            reps: item.reps,
+                            sets: item.sets,
+                          })
+                        }}><span className="material-symbols-outlined edit">
+                            edit
+                          </span></button><button onClick={() => handleDeleteItem(item.id)}><span className="material-symbols-outlined delete">
+                            delete
+                          </span></button></td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
               )}
 
-
             </div>
-          ))}
-        <h3>{ }</h3>
+          ))
+        }
       </div>
+
     </div>
+
   );
 }
 export default TrainingPage;

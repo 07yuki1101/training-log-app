@@ -3,14 +3,11 @@ import { collection, getDocs, addDoc, deleteDoc, updateDoc, doc } from "firebase
 import { db } from "../firebase";
 
 function MealPage({ user }) {
-  const [meals, setMeals] = useState(() => {
-    const saved = localStorage.getItem("meals");
-    return saved ? JSON.parse(saved) : [];
-  });
+  const [meals, setMeals] = useState([]);
   const [showForm, setShowForm] = useState(false);
   const [newMeal, setNewMeal] = useState({
     date: '', timing: '', calories: '', protein: ''
-  })
+  });
   const timingList = [
     { id: 0, time: '朝食' },
     { id: 1, time: '昼食' },
@@ -54,8 +51,9 @@ function MealPage({ user }) {
             calories: Number(newMeal.calories),
             protein: Number(newMeal.protein),
           }
-        )
+        );
       } else {
+        
         await addDoc(
           collection(db, 'users', user.uid, 'meals'),
           {
@@ -151,7 +149,7 @@ function MealPage({ user }) {
             placeholder="たんぱく質"
             onChange={(e) => setNewMeal({ ...newMeal, protein: e.target.value })} />
           <button className="add-btn" onClick={handleAddMeals}>{editMeal ? '更新' : '追加'}</button>
-          {/* {edit && (<button className="add-btn" onClick={handleAddMeals}>更新</button>)} */}
+         
 
           <button className="cancel-btn" onClick={() => { setShowForm(false); setNewMeal({ date: '', timing: '', calories: '', protein: '' }); setEditMeal(null) }}>×</button>
         </div>
