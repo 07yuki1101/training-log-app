@@ -97,6 +97,7 @@ input[type="date"] {
   border-bottom: 1px solid #eeeeee67;
   display: flex;
   justify-content: space-between;
+  padding-top: 10px;
 }
 
 
@@ -109,13 +110,22 @@ table {
   table-layout: fixed;
 }
 
-.train-name{ width: 44%;}
-.train-weight{ width: 12%;}
-.train-reps{ width: 12%;}
-.train-sets{ width: 12%;}
+
 .table-action{ width: 20%;
 text-align: right;}
 
+.item-card{
+  padding: 10px 0;
+  border-bottom: 1px solid rgba(255,255,255,0.1);
+}
+.item-name{
+  display: flex;
+  justify-content: space-between;
+}
+.item-counts{
+  display: flex;
+  justify-content: space-around;
+}
 
 .form-switch {
   max-width: 600px;

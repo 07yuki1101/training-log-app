@@ -176,15 +176,13 @@ function TrainingPage({ user }) {
                 </div>
               </div>
               {openItem.includes(day.date) && (
-                <table>
-                  <tbody>
-                    {day.items.map(item => (
-                      <tr key={item.id}>
-                        <td className="train-name">{item.exercise}</td>
-                        <td className="train-weight">{item.weight} kg</td>
-                        <td className="train-reps">{item.reps} 回</td>
-                        <td className="train-sets">{item.sets} set</td>
-                        <td className="table-action"><button onClick={() => {
+                <div>
+                  {day.items.map(item => (
+
+                    <div key={item.id} className="item-card">
+                      <div className="item-name">
+                        <div className="train-name">{item.exercise}</div>
+                        <div className="table-action"><button onClick={() => {
                           setShowForm(true); setEditRecord(item); setNewRecords({
                             date: day.date,
                             exercise: item.exercise,
@@ -196,11 +194,19 @@ function TrainingPage({ user }) {
                             edit
                           </span></button><button onClick={() => handleDeleteItem(item.id)}><span className="material-symbols-outlined delete">
                             delete
-                          </span></button></td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
+                          </span></button></div>
+                      </div>
+                      <div className="item-counts">
+                        <div className="train-weight">{item.weight} kg</div>
+                        <div className="train-reps">{item.reps} 回</div>
+                        <div className="train-sets">{item.sets} set</div>
+                      </div>
+                    </div>
+                  ))}
+
+                </div>
+
+
               )}
 
             </div>
