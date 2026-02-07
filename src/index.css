@@ -144,7 +144,8 @@ table {
   display:block;
   width: 100px;
   height: 100px;
-  font-size: px;
+  /* border: 1px solid #eeeeee67; */
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 1);
   background: transparent;
   transition: .3s;
 }
@@ -174,7 +175,15 @@ table {
   font-size: 40px;
 
 }
-
+/* 食事ページ */
+.meal-item{
+  border-bottom: 1px solid #eeeeee67;
+  
+}
+.meal-date{
+display: flex;
+  justify-content: space-between;
+}
 /* 体重ページ */
 .graph{
   max-width: 600px;
@@ -217,9 +226,9 @@ table {
 }
 
 /* スマホ用 */
-@media (width< 480px){
+@media (width< 768px){
   td{
-    font-size: 12px;
+    font-size: 14px;
   }
   .edit,
   .delete,

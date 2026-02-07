@@ -8,7 +8,7 @@ import MealPage from "./pages/MealPage"
 import WeightPage from "./pages/WeightPage";
 import Login from "./components/Login"
 function App() {
-  const [page, setPage] = useState('training');
+  const [page, setPage] = useState(null);
   const [user, setUser] = useState(null);
 
   useEffect(() => {

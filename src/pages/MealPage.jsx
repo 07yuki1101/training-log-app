@@ -53,7 +53,7 @@ function MealPage({ user }) {
           }
         );
       } else {
-        
+
         await addDoc(
           collection(db, 'users', user.uid, 'meals'),
           {
@@ -149,7 +149,7 @@ function MealPage({ user }) {
             placeholder="たんぱく質"
             onChange={(e) => setNewMeal({ ...newMeal, protein: e.target.value })} />
           <button className="add-btn" onClick={handleAddMeals}>{editMeal ? '更新' : '追加'}</button>
-         
+
 
           <button className="cancel-btn" onClick={() => { setShowForm(false); setNewMeal({ date: '', timing: '', calories: '', protein: '' }); setEditMeal(null) }}>×</button>
         </div>
@@ -161,20 +161,24 @@ function MealPage({ user }) {
           .sort((a, b) => b.date.localeCompare(a.date))
           .map(day => (
             <div key={day.date}>
-              <div className="date">
-                <h3>{day.date}</h3>
-                <p className="total">
-                  カロリー: {day.foods.reduce((sum, f) => sum + Number(f.calories), 0)} kcal
-                  たんぱく質: {day.foods.reduce((sum, f) => sum + Number(f.protein), 0)} g
-                </p>
-                <button onClick={() => handleDeleteMeal(day.date)}><span className="material-symbols-outlined delete">
-                  delete
-                </span></button>
-                <button onClick={() => toggleDate(day.date)}>{openDate.includes(day.date) ? <span className="material-symbols-outlined arrow">
+              <div className="meal-item">
+                <div className="meal-date">
+                  <h3>{day.date}</h3>
+                  <div>
+                    <button onClick={() => handleDeleteMeal(day.date)}><span className="material-symbols-outlined delete">
+                      delete
+                    </span></button>
+                    <button onClick={() => toggleDate(day.date)}>{openDate.includes(day.date) ? <span className="material-symbols-outlined arrow">
                       keyboard_arrow_up
                     </span> : <span className="material-symbols-outlined arrow">
                       keyboard_arrow_down
                     </span>}</button>
+                  </div>
+                </div>
+                <p className="total">
+                  カロリー: {day.foods.reduce((sum, f) => sum + Number(f.calories), 0)} kcal
+                  たんぱく質: {day.foods.reduce((sum, f) => sum + Number(f.protein), 0)} g
+                </p>
               </div>
               {openDate.includes(day.date) && (
                 <table>
@@ -182,24 +186,21 @@ function MealPage({ user }) {
                     {day.foods.map(food => (
                       <tr key={food.id}>
                         <td>{food.timing}</td>
-                        <td>{food.calories}</td>
-                        <td>{food.protein}</td>
-                        <td>
-                          <button onClick={() => handleDeleteFood(food.id)}><span className="material-symbols-outlined delete">
-                            delete
-                          </span></button>
-                          <button onClick={() => {
-                            setEditMeal(food); setNewMeal({
-                              date: day.date,
-                              timing: food.timing,
-                              calories: food.calories,
-                              protein: food.protein
-                            })
-                            setShowForm(true)
-                          }}><span className="material-symbols-outlined edit">
+                        <td>{food.calories} kcal</td>
+                        <td>{food.protein} g</td>
+                        <td><button onClick={() => handleDeleteFood(food.id)}><span className="material-symbols-outlined delete">
+                          delete
+                        </span></button><button onClick={() => {
+                          setEditMeal(food); setNewMeal({
+                            date: day.date,
+                            timing: food.timing,
+                            calories: food.calories,
+                            protein: food.protein
+                          })
+                          setShowForm(true)
+                        }}><span className="material-symbols-outlined edit">
                               edit
-                            </span></button>
-                        </td>
+                            </span></button></td>
                       </tr>
                     ))}
                   </tbody>

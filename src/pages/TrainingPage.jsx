@@ -174,18 +174,17 @@ function TrainingPage({ user }) {
                     keyboard_arrow_down
                   </span>}</button>
                 </div>
-
               </div>
               {openItem.includes(day.date) && (
                 <table>
                   <tbody>
                     {day.items.map(item => (
                       <tr key={item.id}>
-                        <td>{item.exercise}</td>
-                        <td>{item.weight} kg</td>
-                        <td>{item.reps} 回</td>
-                        <td>{item.sets} set</td>
-                        <td><button onClick={() => {
+                        <td className="train-name">{item.exercise}</td>
+                        <td className="train-weight">{item.weight} kg</td>
+                        <td className="train-reps">{item.reps} 回</td>
+                        <td className="train-sets">{item.sets} set</td>
+                        <td className="train-action"><button onClick={() => {
                           setShowForm(true); setEditRecord(item); setNewRecords({
                             date: day.date,
                             exercise: item.exercise,
