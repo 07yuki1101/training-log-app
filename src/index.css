@@ -109,11 +109,12 @@ table {
   table-layout: fixed;
 }
 
-.train-name{ width: 40%;}
-.train-weight{ width: 15%;}
-.train-reps{ width: 15%;}
-.train-sets{ width: 15%;}
-.train-action{ width: 15%;}
+.train-name{ width: 44%;}
+.train-weight{ width: 12%;}
+.train-reps{ width: 12%;}
+.train-sets{ width: 12%;}
+.table-action{ width: 20%;
+text-align: right;}
 
 
 .form-switch {
@@ -233,7 +234,7 @@ display: flex;
   .edit,
   .delete,
   .arrow{
-    font-size: 20px;
+    font-size: 24px;
   }
  
 }

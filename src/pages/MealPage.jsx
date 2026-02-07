@@ -188,7 +188,7 @@ function MealPage({ user }) {
                         <td>{food.timing}</td>
                         <td>{food.calories} kcal</td>
                         <td>{food.protein} g</td>
-                        <td><button onClick={() => handleDeleteFood(food.id)}><span className="material-symbols-outlined delete">
+                        <td className="table-action"><button onClick={() => handleDeleteFood(food.id)}><span className="material-symbols-outlined delete">
                           delete
                         </span></button><button onClick={() => {
                           setEditMeal(food); setNewMeal({

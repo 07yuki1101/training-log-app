@@ -184,7 +184,7 @@ function TrainingPage({ user }) {
                         <td className="train-weight">{item.weight} kg</td>
                         <td className="train-reps">{item.reps} 回</td>
                         <td className="train-sets">{item.sets} set</td>
-                        <td className="train-action"><button onClick={() => {
+                        <td className="table-action"><button onClick={() => {
                           setShowForm(true); setEditRecord(item); setNewRecords({
                             date: day.date,
                             exercise: item.exercise,
