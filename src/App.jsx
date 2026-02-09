@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react"
-import { onAuthStateChanged } from "firebase/auth";
+import { onAuthStateChanged, signOut} from "firebase/auth";
 import { auth } from "./firebase";
 
 import Tabs from "./components/Tabs";
@@ -21,12 +21,22 @@ function App() {
     return <Login></Login>
   }
 
-
+  const handleLogout = async () => {
+      try {
+        await signOut(auth);
+      } catch (error) {
+        console.error('ログアウト失敗', error);
+      }
+    }
 
   return (
     <div>
       <header>
         <h1 onClick={() => setPage(null)}>Training Log</h1>
+        <div><button onClick={handleLogout}><span className="material-symbols-outlined">
+logout
+</span></button></div>
+        
       </header>
       <Tabs page={page} setPage={setPage} />
       {page === 'training' && <TrainingPage user={user}/>}

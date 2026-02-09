@@ -91,14 +91,21 @@ function WeightPage({ user }) {
     })
     .sort((a, b) => new Date(a.date) - new Date(b.date));
 
-    console.log(weight)
+    const getToday = ()=>{
+      const today = new Date();
+      return today.toISOString().split('T')[0]
+    }
     
   return (
     <div>
       <div >
         {!showForm && (
           <div className="form-switch">
-            <button className="add-btn" onClick={() => setShowForm(true)}>体重を追加</button>
+            <button className="add-btn" onClick={() => {setShowForm(true);
+              setNewWeight(prev=>({
+                ...prev,date:getToday()
+              }))
+            }}>体重を追加</button>
           </div>
         )}
 

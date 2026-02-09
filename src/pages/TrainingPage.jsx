@@ -27,6 +27,10 @@ function TrainingPage({ user }) {
     fetchRecords();
   }, [user]);
 
+  const getToday = () => {
+    const today = new Date();
+    return today.toISOString().split('T')[0]
+  }
 
   const handleAddRecord = async () => {
     console.log('handleAddRecords Start', newRecords);
@@ -116,12 +120,14 @@ function TrainingPage({ user }) {
 
 
 
-
   return (
     <div>
       {!showForm &&
         <div className="form-switch">
-          <button className="add-btn" onClick={() => setShowForm(true)}>トレーニングを追加</button>
+          <button className="add-btn" onClick={() => {setShowForm(true);
+            setNewRecords(prev=>({
+              ...prev,date:getToday()
+            }))}}>トレーニングを追加</button>
         </div>
       }
       {showForm && (

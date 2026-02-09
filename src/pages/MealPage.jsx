@@ -117,12 +117,21 @@ function MealPage({ user }) {
     acc[meal.date].foods.push(meal);
     return acc;
   }, {});
+
+  const getToday = ()=>{
+    const today = new Date();
+    return today.toISOString().split('T')[0]
+  }
   return (
     <div>
 
       {!showForm &&
         <div className="form-switch">
-          <button className="add-btn" onClick={() => setShowForm(true)}>食事を追加</button>
+          <button className="add-btn" onClick={() => {setShowForm(true);
+            setNewMeal(prev=>({
+              ...prev,date:getToday()
+            }))
+          }}>食事を追加</button>
         </div>
       }
       {showForm && (
