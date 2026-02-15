@@ -27,6 +27,16 @@ header {
  h1{
   cursor: pointer;
  }
+ /* ログインページ */
+.login-btn{
+  display: flex;
+  margin: 20px auto;
+  height: 40px;
+  border-radius: 30px;
+  padding: 10px;
+  align-items: center;
+}
+
 /* フォーム */
 .form {
   max-width: 600px;
