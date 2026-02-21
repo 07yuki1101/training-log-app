@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react"
-import { collection, getDocs, addDoc, deleteDoc, updateDoc, doc } from "firebase/firestore";
+import { collection, getDocs, addDoc, deleteDoc, updateDoc, doc, query, orderBy, serverTimestamp} from "firebase/firestore";
 import { db } from "../firebase";
 
 function TrainingPage({ user }) {
@@ -12,9 +12,12 @@ function TrainingPage({ user }) {
   const [editRecord, setEditRecord] = useState(null);
 
   const fetchRecords = async () => {
-    const querySnapshot = await getDocs(
-      collection(db, 'users', user.uid, 'records')
+    const q = query(
+      collection(db, 'users', user.uid, 'records'),
+      orderBy('createdAt','asc')
     );
+    const querySnapshot = await getDocs(q);
+
     const data = querySnapshot.docs.map(doc => ({
       id: doc.id,
       ...doc.data()
@@ -51,7 +54,9 @@ function TrainingPage({ user }) {
             exercise: newRecords.exercise,
             weight: Number(newRecords.weight),
             reps: Number(newRecords.reps),
-            sets: Number(newRecords.sets)
+            sets: Number(newRecords.sets),
+            createdAt:serverTimestamp(),
+            updatedAt:serverTimestamp()
           }
         );
       } else {
@@ -62,7 +67,9 @@ function TrainingPage({ user }) {
             exercise: newRecords.exercise,
             weight: Number(newRecords.weight),
             reps: Number(newRecords.reps),
-            sets: Number(newRecords.sets)
+            sets: Number(newRecords.sets),
+            createdAt:serverTimestamp(),
+            updatedAt:serverTimestamp()
           }
         );
       }
