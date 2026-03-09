@@ -5,9 +5,9 @@
 }
 
 body {
-  background: #0f172a;
+  background: linear-gradient(145deg,#1e293b,#020617);
   color: #f8fafc;
-
+  min-height: 100vh;
 }
 
 header {
@@ -67,7 +67,7 @@ input[type="date"] {
 
 
 .add-btn {
-  background: #22c55e;
+  background: linear-gradient(135deg,#22c55e,#16a34a);
   color: #ffffff;
   border: none;
   border-radius: 30px;
