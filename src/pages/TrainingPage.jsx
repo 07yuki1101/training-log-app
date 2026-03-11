@@ -1,12 +1,12 @@
 import { useState, useEffect } from "react"
-import { collection, getDocs, addDoc, deleteDoc, updateDoc, doc, query, orderBy, serverTimestamp} from "firebase/firestore";
+import { collection, getDocs, addDoc, deleteDoc, updateDoc, doc, query, orderBy, serverTimestamp } from "firebase/firestore";
 import { db } from "../firebase";
 
 function TrainingPage({ user }) {
   const [records, setRecords] = useState([]);
   const [showForm, setShowForm] = useState(false);
   const [newRecords, setNewRecords] = useState({
-    date: '', exercise: '', weight: '', reps: '', sets: ''
+    date: '', exercise: '', sets: [{ weight: '', reps: '' }]
   });
 
   const [editRecord, setEditRecord] = useState(null);
@@ -14,7 +14,7 @@ function TrainingPage({ user }) {
   const fetchRecords = async () => {
     const q = query(
       collection(db, 'users', user.uid, 'records'),
-      orderBy('createdAt','asc')
+      orderBy('createdAt', 'asc')
     );
     const querySnapshot = await getDocs(q);
 
@@ -33,7 +33,20 @@ function TrainingPage({ user }) {
   const getToday = () => {
     const today = new Date();
     return today.toISOString().split('T')[0]
-  }
+  };
+
+  const handleeAddSet = () => {
+    setNewRecords(prev => ({
+      ...prev, sets: [...prev.sets, { weight: '', reps: '' }]
+    }))
+  };
+
+  const handleRemoveSet = (index)=>{
+    setNewRecords(prev =>({
+      ...prev,
+      sets:prev.sets.filter((_,i)=>i!==index)
+    }))
+  };
 
   const handleAddRecord = async () => {
     console.log('handleAddRecords Start', newRecords);
@@ -52,11 +65,12 @@ function TrainingPage({ user }) {
           {
             date: newRecords.date,
             exercise: newRecords.exercise,
-            weight: Number(newRecords.weight),
-            reps: Number(newRecords.reps),
-            sets: Number(newRecords.sets),
-            createdAt:serverTimestamp(),
-            updatedAt:serverTimestamp()
+            sets: newRecords.sets.map(set=>({
+              weight:Number(set.weight),
+              reps:Number(set.reps)
+            })),
+            createdAt: serverTimestamp(),
+            updatedAt: serverTimestamp()
           }
         );
       } else {
@@ -65,17 +79,18 @@ function TrainingPage({ user }) {
           {
             date: newRecords.date,
             exercise: newRecords.exercise,
-            weight: Number(newRecords.weight),
-            reps: Number(newRecords.reps),
-            sets: Number(newRecords.sets),
-            createdAt:serverTimestamp(),
-            updatedAt:serverTimestamp()
+            sets: newRecords.sets.map(set=>({
+              weight:Number(set.weight),
+              reps:Number(set.reps)
+            })),
+            createdAt: serverTimestamp(),
+            updatedAt: serverTimestamp()
           }
         );
       }
 
       await fetchRecords();
-      setNewRecords({ date: '', exercise: '', weight: '', reps: '', sets: '' });
+      setNewRecords({ date: '', exercise: '',sets: [{ weight: '', reps: '' }]  });
       setEditRecord(null)
       setShowForm(false);
       console.log('✅ handleAddRecord END');
@@ -131,10 +146,12 @@ function TrainingPage({ user }) {
     <div>
       {!showForm &&
         <div className="form-switch">
-          <button className="add-btn" onClick={() => {setShowForm(true);
-            setNewRecords(prev=>({
-              ...prev,date:getToday()
-            }))}}>トレーニングを追加</button>
+          <button className="add-btn" onClick={() => {
+            setShowForm(true);
+            setNewRecords(prev => ({
+              ...prev, date: getToday()
+            }))
+          }}>トレーニングを追加</button>
         </div>
       }
       {showForm && (
@@ -148,24 +165,37 @@ function TrainingPage({ user }) {
             value={newRecords.exercise}
             onChange={(e) => setNewRecords({ ...newRecords, exercise: e.target.value })} />
 
-          <input type="number"
-            placeholder="重さ（kg）"
-            value={newRecords.weight}
-            onChange={(e) => setNewRecords({ ...newRecords, weight: e.target.value })} />
+          {newRecords.sets.map((set, index) => (
+            <div key={index} className="set-row">
+              <input type="number"
+                placeholder="重さ（kg）"
+                value={set.weight}
+                onChange={(e) => {
+                  const updated =[...newRecords.sets]
+                  updated[index].weight =e.target.value
+                setNewRecords({ ...newRecords, sets: updated})} }/>
 
-          <input type="number"
-            placeholder="回数"
-            value={newRecords.reps}
-            onChange={(e) => setNewRecords({ ...newRecords, reps: e.target.value })} />
+              <input type="number"
+                placeholder="回数"
+                value={set.reps}
+                onChange={(e) => {
+                  const updated =[...newRecords.sets]
+                  updated[index].reps =e.target.value
+                  setNewRecords({ ...newRecords, sets:updated})} }/>
 
-          <input type="number"
-            placeholder="セット数"
-            value={newRecords.sets}
-            onChange={(e) => setNewRecords({ ...newRecords, sets: e.target.value })} />
+                  <button onClick={()=>handleRemoveSet(index)}>削除</button>
+            </div>
+
+          ))}
+
+
+         <button onClick={handleeAddSet}>セット追加</button>
+
+          
 
           <button className="add-btn" onClick={handleAddRecord}>{editRecord ? '更新' : '追加'}</button>
 
-          <button className="cancel-btn" onClick={() => { setShowForm(false); setNewRecords({ date: '', exercise: '', weight: '', reps: '', sets: '' }) }}>×</button>
+          <button className="cancel-btn" onClick={() => { setShowForm(false); setNewRecords({ date: '', exercise: '',sets: [{weight:'',reps:''}] }) }}>×</button>
         </div>
       )}
 
@@ -199,8 +229,7 @@ function TrainingPage({ user }) {
                           setShowForm(true); setEditRecord(item); setNewRecords({
                             date: day.date,
                             exercise: item.exercise,
-                            weight: item.weight,
-                            reps: item.reps,
+                          
                             sets: item.sets,
                           })
                         }}><span className="material-symbols-outlined edit">
@@ -210,9 +239,12 @@ function TrainingPage({ user }) {
                           </span></button></div>
                       </div>
                       <div className="item-counts">
-                        <div className="train-weight">{item.weight} kg</div>
-                        <div className="train-reps">{item.reps} 回</div>
-                        <div className="train-sets">{item.sets} set</div>
+                        {item.sets.map((set,i)=>(
+                          <div key={i}>
+                            {set.weight} kg × {set.reps} 回
+                          </div>
+                        ))}
+                        
                       </div>
                     </div>
                   ))}
