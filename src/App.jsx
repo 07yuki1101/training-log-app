@@ -3,6 +3,7 @@ import { onAuthStateChanged, signOut } from "firebase/auth";
 import { auth } from "./firebase";
 import { collection, getDocs } from "firebase/firestore";
 import { db } from "./firebase";
+import CalendarPage from "./pages/CalendarPage";
 import SettingPage from "./pages/SettingPage";
 import Tabs from "./components/Tabs";
 import TrainingPage from "./pages/TrainingPage"
@@ -14,7 +15,7 @@ function App() {
   const [user, setUser] = useState(null);
   const [exercises, setExercises] = useState([])
 
-   const fetchExercises = async (uid) => {
+  const fetchExercises = async (uid) => {
     const snap = await getDocs(
       collection(db, 'users', uid, 'exercises'));
 
@@ -30,9 +31,9 @@ function App() {
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
       setUser(currentUser);
-     if(currentUser){
-     fetchExercises(currentUser.uid);
-    }
+      if (currentUser) {
+        fetchExercises(currentUser.uid);
+      }
     });
     return () => unsubscribe()
   }, []);
@@ -50,8 +51,8 @@ function App() {
     }
   }
 
- 
-  
+
+
   return (
     <div>
       <header>
@@ -63,8 +64,8 @@ function App() {
             </span>
           </button>
           <button onClick={() => setPage('setting')}><span class="material-symbols-outlined">
-settings
-</span></button>
+            settings
+          </span></button>
         </div>
 
       </header>
@@ -90,6 +91,9 @@ settings
           user={user}
           exercises={exercises}
           setExercises={setExercises} />}
+      {!page &&
+        <CalendarPage />
+      }
 
 
     </div>
