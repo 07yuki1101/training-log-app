@@ -45,7 +45,10 @@ function App() {
         </div>
 
       </header>
+      {page !== 'setting' &&
       <Tabs page={page} setPage={setPage} />
+      }
+      
       {page === 'training' &&
         <TrainingPage
           user={user}
