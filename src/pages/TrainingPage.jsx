@@ -35,16 +35,18 @@ function TrainingPage({ user }) {
     return today.toISOString().split('T')[0]
   };
 
+
+
   const handleeAddSet = () => {
     setNewRecords(prev => ({
       ...prev, sets: [...prev.sets, { weight: '', reps: '' }]
     }))
   };
 
-  const handleRemoveSet = (index)=>{
-    setNewRecords(prev =>({
+  const handleRemoveSet = (index) => {
+    setNewRecords(prev => ({
       ...prev,
-      sets:prev.sets.filter((_,i)=>i!==index)
+      sets: prev.sets.filter((_, i) => i !== index)
     }))
   };
 
@@ -65,9 +67,9 @@ function TrainingPage({ user }) {
           {
             date: newRecords.date,
             exercise: newRecords.exercise,
-            sets: newRecords.sets.map(set=>({
-              weight:Number(set.weight),
-              reps:Number(set.reps)
+            sets: newRecords.sets.map(set => ({
+              weight: Number(set.weight),
+              reps: Number(set.reps)
             })),
             createdAt: serverTimestamp(),
             updatedAt: serverTimestamp()
@@ -79,9 +81,9 @@ function TrainingPage({ user }) {
           {
             date: newRecords.date,
             exercise: newRecords.exercise,
-            sets: newRecords.sets.map(set=>({
-              weight:Number(set.weight),
-              reps:Number(set.reps)
+            sets: newRecords.sets.map(set => ({
+              weight: Number(set.weight),
+              reps: Number(set.reps)
             })),
             createdAt: serverTimestamp(),
             updatedAt: serverTimestamp()
@@ -90,7 +92,7 @@ function TrainingPage({ user }) {
       }
 
       await fetchRecords();
-      setNewRecords({ date: '', exercise: '',sets: [{ weight: '', reps: '' }]  });
+      setNewRecords({ date: '', exercise: '', sets: [{ weight: '', reps: '' }] });
       setEditRecord(null)
       setShowForm(false);
       console.log('✅ handleAddRecord END');
@@ -108,7 +110,7 @@ function TrainingPage({ user }) {
         deleteDoc(doc(db, 'users', user.uid, 'records', r.id))
       )
     );
-    fetchRecords();
+    await fetchRecords();
   }
 
   const handleDeleteItem = async (itemId) => {
@@ -138,9 +140,27 @@ function TrainingPage({ user }) {
     return acc;
   }, {})
 
+  const getPreviousRecord = (exercise) => {
+    const previous = records
+      .filter(r => r.exercise === exercise)
+      .sort((a, b) => new Date(b.date) - new Date(a.date));
 
+    return previous[0]
+  };
+  
+    const previous = getPreviousRecord(newRecords.exercise);
+    useEffect(()=>{
+      const previous = getPreviousRecord(newRecords.exercise);
+      if(!previous)return;
 
-
+      setNewRecords(prev =>({
+        ...prev,
+        sets:previous.sets.map(set=>({
+          weight:Number(set.weight),
+          reps:''
+        }))
+      }));
+    },[newRecords.exercise])
 
   return (
     <div>
@@ -164,38 +184,49 @@ function TrainingPage({ user }) {
             placeholder="種目"
             value={newRecords.exercise}
             onChange={(e) => setNewRecords({ ...newRecords, exercise: e.target.value })} />
-
+          {previous && (
+            <div className="previous-sets">
+              前回
+              {previous.sets.map((set, i) => (
+                <div key={i}>
+                  {set.weight} kg × {set.reps}
+                </div>
+              ))}
+            </div>
+          )}
           {newRecords.sets.map((set, index) => (
             <div key={index} className="set-row">
               <input type="number"
                 placeholder="重さ（kg）"
                 value={set.weight}
                 onChange={(e) => {
-                  const updated =[...newRecords.sets]
-                  updated[index].weight =e.target.value
-                setNewRecords({ ...newRecords, sets: updated})} }/>
+                  const updated = [...newRecords.sets]
+                  updated[index].weight = e.target.value
+                  setNewRecords({ ...newRecords, sets: updated })
+                }} />
 
               <input type="number"
                 placeholder="回数"
                 value={set.reps}
                 onChange={(e) => {
-                  const updated =[...newRecords.sets]
-                  updated[index].reps =e.target.value
-                  setNewRecords({ ...newRecords, sets:updated})} }/>
+                  const updated = [...newRecords.sets]
+                  updated[index].reps = e.target.value
+                  setNewRecords({ ...newRecords, sets: updated })
+                }} />
 
-                  <button onClick={()=>handleRemoveSet(index)}>削除</button>
+              <button onClick={() => handleRemoveSet(index)}>削除</button>
             </div>
 
           ))}
 
 
-         <button onClick={handleeAddSet}>セット追加</button>
+          <button onClick={handleeAddSet}>セット追加</button>
 
-          
+
 
           <button className="add-btn" onClick={handleAddRecord}>{editRecord ? '更新' : '追加'}</button>
 
-          <button className="cancel-btn" onClick={() => { setShowForm(false); setNewRecords({ date: '', exercise: '',sets: [{weight:'',reps:''}] }) }}>×</button>
+          <button className="cancel-btn" onClick={() => { setShowForm(false); setNewRecords({ date: '', exercise: '', sets: [{ weight: '', reps: '' }] }) }}>×</button>
         </div>
       )}
 
@@ -229,7 +260,7 @@ function TrainingPage({ user }) {
                           setShowForm(true); setEditRecord(item); setNewRecords({
                             date: day.date,
                             exercise: item.exercise,
-                          
+
                             sets: item.sets,
                           })
                         }}><span className="material-symbols-outlined edit">
@@ -238,13 +269,13 @@ function TrainingPage({ user }) {
                             delete
                           </span></button></div>
                       </div>
-                      <div className="item-counts">
-                        {item.sets.map((set,i)=>(
+                      <div className="item-sets">
+                        {item.sets.map((set, i) => (
                           <div key={i}>
-                            {set.weight} kg × {set.reps} 回
+                            {set.weight} kg × {set.reps} reps
                           </div>
                         ))}
-                        
+
                       </div>
                     </div>
                   ))}

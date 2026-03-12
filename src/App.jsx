@@ -1,7 +1,8 @@
 import { useState, useEffect } from "react"
-import { onAuthStateChanged, signOut} from "firebase/auth";
+import { onAuthStateChanged, signOut } from "firebase/auth";
 import { auth } from "./firebase";
 
+import SettingPage from "./pages/SettingPage";
 import Tabs from "./components/Tabs";
 import TrainingPage from "./pages/TrainingPage"
 import MealPage from "./pages/MealPage"
@@ -10,6 +11,7 @@ import Login from "./components/Login"
 function App() {
   const [page, setPage] = useState(null);
   const [user, setUser] = useState(null);
+  const [exercises, setExercises] = useState([])
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
@@ -22,26 +24,47 @@ function App() {
   }
 
   const handleLogout = async () => {
-      try {
-        await signOut(auth);
-      } catch (error) {
-        console.error('ログアウト失敗', error);
-      }
+    try {
+      await signOut(auth);
+    } catch (error) {
+      console.error('ログアウト失敗', error);
     }
+  }
 
   return (
     <div>
       <header>
         <h1 onClick={() => setPage(null)}>Training Log</h1>
-        <div><button onClick={handleLogout}><span className="material-symbols-outlined">
-logout
-</span></button></div>
-        
+        <div>
+          <button onClick={handleLogout}>
+            <span className="material-symbols-outlined">
+              logout
+            </span>
+          </button>
+          <button onClick={()=>setPage('setting')}>設定</button>
+        </div>
+
       </header>
       <Tabs page={page} setPage={setPage} />
-      {page === 'training' && <TrainingPage user={user}/>}
-      {page === 'meal' && <MealPage user={user} />}
-      {page === 'weight' && <WeightPage user={user} />}
+      {page === 'training' &&
+        <TrainingPage
+          user={user}
+          exercise={exercises} />}
+
+      {page === 'meal' &&
+        <MealPage
+          user={user} />}
+
+      {page === 'weight' &&
+        <WeightPage
+          user={user} />}
+
+      {page === 'setting' &&
+        <SettingPage
+          user={user} 
+          exercises={exercises}
+          setExercises={setExercises}/>}
+
 
     </div>
   )
