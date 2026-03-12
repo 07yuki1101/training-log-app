@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react"
 import { onAuthStateChanged, signOut } from "firebase/auth";
 import { auth } from "./firebase";
-import { collection, getDocs } from "firebase/firestore";
+import { collection, getDocs, query,orderBy } from "firebase/firestore";
 import { db } from "./firebase";
 import CalendarPage from "./pages/CalendarPage";
 import SettingPage from "./pages/SettingPage";
@@ -13,8 +13,22 @@ import Login from "./components/Login"
 function App() {
   const [page, setPage] = useState(null);
   const [user, setUser] = useState(null);
+  const [records, setRecords] = useState([])
   const [exercises, setExercises] = useState([])
 
+   const fetchRecords = async (uid) => {
+      const q = query(
+        collection(db, 'users', uid, 'records'),
+        orderBy('createdAt', 'asc')
+      );
+      const querySnapshot = await getDocs(q);
+  
+      const data = querySnapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data()
+      }))
+      setRecords(data);
+    }
   const fetchExercises = async (uid) => {
     const snap = await getDocs(
       collection(db, 'users', uid, 'exercises'));
@@ -32,6 +46,7 @@ function App() {
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
       setUser(currentUser);
       if (currentUser) {
+        fetchRecords(currentUser.uid)
         fetchExercises(currentUser.uid);
       }
     });
@@ -63,7 +78,7 @@ function App() {
               logout
             </span>
           </button>
-          <button onClick={() => setPage('setting')}><span class="material-symbols-outlined">
+          <button onClick={() => setPage('setting')}><span className="material-symbols-outlined">
             settings
           </span></button>
         </div>
@@ -76,7 +91,10 @@ function App() {
       {page === 'training' &&
         <TrainingPage
           user={user}
-          exercises={exercises} />}
+          exercises={exercises} 
+          records={records}
+          setRecords={setRecords}
+          fetchRecords={fetchRecords}/>}
 
       {page === 'meal' &&
         <MealPage
@@ -92,7 +110,8 @@ function App() {
           exercises={exercises}
           setExercises={setExercises} />}
       {!page &&
-        <CalendarPage />
+        <CalendarPage 
+        records={records}/>
       }
 
 

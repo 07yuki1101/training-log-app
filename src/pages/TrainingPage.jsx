@@ -2,8 +2,8 @@ import { useState, useEffect } from "react"
 import { collection, getDocs, addDoc, deleteDoc, updateDoc, doc, query, orderBy, serverTimestamp } from "firebase/firestore";
 import { db } from "../firebase";
 
-function TrainingPage({ user, exercises }) {
-  const [records, setRecords] = useState([]);
+function TrainingPage({ user, exercises, records,setRecords,fetchRecords }) {
+  
   const [showForm, setShowForm] = useState(false);
   const [newRecords, setNewRecords] = useState({
     date: '', exercise: '', sets: [{ weight: '', reps: '' }]
@@ -11,24 +11,7 @@ function TrainingPage({ user, exercises }) {
 
   const [editRecord, setEditRecord] = useState(null);
 
-  const fetchRecords = async () => {
-    const q = query(
-      collection(db, 'users', user.uid, 'records'),
-      orderBy('createdAt', 'asc')
-    );
-    const querySnapshot = await getDocs(q);
-
-    const data = querySnapshot.docs.map(doc => ({
-      id: doc.id,
-      ...doc.data()
-    }))
-    setRecords(data);
-  }
-
-  useEffect(() => {
-    if (!user) return;
-    fetchRecords();
-  }, [user]);
+  
 
   const getToday = () => {
     const today = new Date();
@@ -91,7 +74,7 @@ function TrainingPage({ user, exercises }) {
         );
       }
 
-      await fetchRecords();
+      await fetchRecords(user.uid);
       setNewRecords({ date: '', exercise: '', sets: [{ weight: '', reps: '' }] });
       setEditRecord(null)
       setShowForm(false);
@@ -110,14 +93,14 @@ function TrainingPage({ user, exercises }) {
         deleteDoc(doc(db, 'users', user.uid, 'records', r.id))
       )
     );
-    await fetchRecords();
+    await fetchRecords(user.uid);
   }
 
   const handleDeleteItem = async (itemId) => {
     const ok = window.confirm('削除しますか？')
     if (!ok) return;
     await deleteDoc(doc(db, 'users', user.uid, 'records', itemId));
-    fetchRecords();
+    await fetchRecords(user.uid);
   }
 
   const [openItem, setOpenItem] = useState([]);
