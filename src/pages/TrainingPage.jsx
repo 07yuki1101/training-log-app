@@ -2,7 +2,7 @@ import { useState, useEffect } from "react"
 import { collection, getDocs, addDoc, deleteDoc, updateDoc, doc, query, orderBy, serverTimestamp } from "firebase/firestore";
 import { db } from "../firebase";
 
-function TrainingPage({ user }) {
+function TrainingPage({ user, exercises }) {
   const [records, setRecords] = useState([]);
   const [showForm, setShowForm] = useState(false);
   const [newRecords, setNewRecords] = useState({
@@ -147,20 +147,29 @@ function TrainingPage({ user }) {
 
     return previous[0]
   };
-  
-    const previous = getPreviousRecord(newRecords.exercise);
-    useEffect(()=>{
-      const previous = getPreviousRecord(newRecords.exercise);
-      if(!previous)return;
 
-      setNewRecords(prev =>({
+  const previous = getPreviousRecord(newRecords.exercise);
+
+  useEffect(() => {
+    if (!newRecords.exercise) return;
+
+    const previous = getPreviousRecord(newRecords.exercise);
+    if (previous) {
+      setNewRecords(prev => ({
         ...prev,
-        sets:previous.sets.map(set=>({
-          weight:Number(set.weight),
-          reps:''
+        sets: previous.sets.map(set => ({
+          weight: Number(set.weight),
+          reps: ''
         }))
       }));
-    },[newRecords.exercise])
+    }
+    else {
+      setNewRecords(prev => ({
+        ...prev,
+        sets: [{ weight: '', reps: '' }]
+      }));
+    }
+  }, [newRecords.exercise])
 
   return (
     <div>
@@ -180,10 +189,15 @@ function TrainingPage({ user }) {
             value={newRecords.date}
             onChange={(e) => setNewRecords({ ...newRecords, date: e.target.value })} />
 
-          <input type="text"
-            placeholder="種目"
+
+          <select
             value={newRecords.exercise}
-            onChange={(e) => setNewRecords({ ...newRecords, exercise: e.target.value })} />
+            onChange={(e) => setNewRecords({ ...newRecords, exercise: e.target.value })}>
+            <option value="">種目</option>
+            {exercises.map(ex => (
+              <option key={ex.id} value={ex.name}>{ex.name}</option>
+            ))}
+          </select>
           {previous && (
             <div className="previous-sets">
               前回
