@@ -44,3 +44,64 @@
   margin: auto;
   margin-top: 2px;
 }
+
+/* モーダル */
+.modal-overlay{
+  position: fixed;
+  inset: 0;
+  background:rgba(0,0,0,0.6);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  backdrop-filter:blur(6px);
+}
+.modal{
+  background: #1e293b;
+  width: 320px;
+  max-width: 90%;
+  border-radius: 16px;
+  padding: 20px;
+   box-shadow:0 10px 30px rgba(0,0,0,0.5);
+   animation: modalIn .3s ease;
+}
+.modal button{
+  width: 100%;
+  margin-top: 15px;
+  padding: 10px;
+  border: none;
+  border-radius: 8px;
+  background: #22c55e;
+  color: white;
+  font-weight: bold;
+}
+@keyframes modalIn{
+  from{
+    transform:translateY(20px);
+    opacity: 0;
+  }
+  to{
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+.day-training h3{
+  text-align: center;
+  margin-bottom: 15px;
+  font-size: 18px;
+  color: #e2e8f0;
+}
+.day-item{
+  background: #0f172a;
+  padding: 12px;
+  border-radius: 10px;
+  margin-bottom: 10px;
+}
+.exercise{
+  font-weight: bold;
+  color: #22c55e;
+  margin-bottom: 6px;
+}
+.sets{
+  font-size: 14px;
+  color: #cbd5f5;
+}

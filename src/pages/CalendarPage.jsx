@@ -1,6 +1,7 @@
 import Calendar from "react-calendar";
 import "react-calendar/dist/Calendar.css"
 import "../../src/calendar.css"
+import { useState } from "react";
 
 function CalendarPage({ records }) {
 
@@ -13,11 +14,14 @@ function CalendarPage({ records }) {
     return `${y}-${m}-${d}`
   }
 
+  const [selectedDate, setSelectedDate] = useState(null);
+  const dayRecords = records.filter(
+    r => r.date === selectedDate
+  )
   return (
     <div>
       <Calendar
         formatDay={(local, date) => date.getDate()}
-        
         showNeighboringMonth={false}
 
         tileContent={({ date, view }) => {
@@ -29,7 +33,36 @@ function CalendarPage({ records }) {
             return <div className="dot"></div>
           }
         }}
+        onClickDay={(date) => {
+          const formatted = formatDate(date)
+          setSelectedDate(formatted)
+        }}
       />
+
+      {selectedDate &&
+        <div className="modal-overlay">
+          <div className="modal">
+            <div className="day-training">
+              <h3>{selectedDate}</h3>
+              {dayRecords.map(r => (
+                <div key={r.id} className="day-item">
+                  <div className="exercise">
+                    {r.exercise}
+                  </div>
+                  {r.sets.map((set, i) => (
+                    <div key={i} className="sets">
+                      {set.weight} kg × {set.reps} reps
+                    </div>
+                  ))}
+                </div>
+
+              ))}
+            </div>
+            <button onClick={()=>setSelectedDate(null)}>閉じる</button>
+          </div>
+        </div>
+
+      }
     </div>
   )
 }
