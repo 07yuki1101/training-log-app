@@ -45,34 +45,44 @@ function SettingPage({ user, exercises, setExercises }) {
   const [openExercise, setOpenExercise] = useState(false);
 
   return (
-    <div>
-      <h2>設定</h2>
-      <div><button onClick={() => setShowForm(true)}>種目追加</button></div>
+    <div className="setting">
+      <h2 className="setting-title">設定</h2>
+      <div className="setting-card">
+        <button className="setting-btn" onClick={() => setShowForm(prev => !prev)}>種目追加</button>
+      </div>
       {showForm && (
-        <div>
+        <div className="form-box">
           <input type="text"
             placeholder="種目を追加"
             value={newExercises}
             onChange={(e) => setNewExercises(e.target.value)} />
 
-          <button onClick={() => { handleAddExercise(); setShowForm(false) }}>追加</button>
-          <button onClick={()=>setShowForm(false)}>キャンセル</button>
+          <button onClick={() => { handleAddExercise(); setShowForm(false) }}><span className="material-symbols-outlined">
+add
+</span></button>
+
         </div>
       )}
-      <div><button onClick={() => setOpenExercise(true)}>種目一覧</button></div>
+      <div className="setting-card">
+        <button className="setting-btn" onClick={() => setOpenExercise(prev => !prev)}>種目一覧</button>
+      </div>
       {openExercise && (
-        <div>
+        <div className="exercise-list">
           {exercises.map(ex => (
-            <div key={ex.id}>
-              <span>{ex.name}</span>
-              <button onClick={() => handleDeleteExercise(ex.id)}>削除</button>
+            <div key={ex.id} className="exercise-items">
+              <div className="exercise-item" >
+                <span className="exercise-name">{ex.name}</span>
+                <button className="delete-btn" onClick={() => handleDeleteExercise(ex.id)}><span className="material-symbols-outlined">
+delete
+</span></button>
+              </div>
             </div>
           ))}
-          <button onClick={()=>setOpenExercise(false)}>閉じる</button>
+
         </div>
       )}
 
-      
+
     </div>
   )
 }

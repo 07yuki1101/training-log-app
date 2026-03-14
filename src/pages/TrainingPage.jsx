@@ -2,8 +2,8 @@ import { useState, useEffect } from "react"
 import { collection, getDocs, addDoc, deleteDoc, updateDoc, doc, query, orderBy, serverTimestamp } from "firebase/firestore";
 import { db } from "../firebase";
 
-function TrainingPage({ user, exercises, records,setRecords,fetchRecords }) {
-  
+function TrainingPage({ user, exercises, records, setRecords, fetchRecords }) {
+
   const [showForm, setShowForm] = useState(false);
   const [newRecords, setNewRecords] = useState({
     date: '', exercise: '', sets: [{ weight: '', reps: '' }]
@@ -11,7 +11,7 @@ function TrainingPage({ user, exercises, records,setRecords,fetchRecords }) {
 
   const [editRecord, setEditRecord] = useState(null);
 
-  
+
 
   const getToday = () => {
     const today = new Date();
@@ -211,19 +211,25 @@ function TrainingPage({ user, exercises, records,setRecords,fetchRecords }) {
                   setNewRecords({ ...newRecords, sets: updated })
                 }} />
 
-              <button onClick={() => handleRemoveSet(index)}>削除</button>
+              <button className="cancel-btn" onClick={() => handleRemoveSet(index)}><span className="material-symbols-outlined set-btn cancel">
+                remove
+              </span></button>
             </div>
 
           ))}
 
+          <div className="set-count">
+            <button className="set-btn" onClick={handleeAddSet}><span className="material-symbols-outlined set-add">
+              add
+            </span></button>
 
-          <button onClick={handleeAddSet}>セット追加</button>
-
-
+          </div>
 
           <button className="add-btn" onClick={handleAddRecord}>{editRecord ? '更新' : '追加'}</button>
 
-          <button className="cancel-btn" onClick={() => { setShowForm(false); setNewRecords({ date: '', exercise: '', sets: [{ weight: '', reps: '' }] }) }}>×</button>
+          <button className="cancel-btn" onClick={() => { setShowForm(false); setNewRecords({ date: '', exercise: '', sets: [{ weight: '', reps: '' }] }) }}><span className="material-symbols-outlined cancel">
+            close_small
+          </span></button>
         </div>
       )}
 

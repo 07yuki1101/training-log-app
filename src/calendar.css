@@ -1,42 +1,42 @@
-.react-calendar{
-  background:#1e293b;
-  border:none;
-  border-radius:16px;
-  padding:20px;
-  color:white;
-  width:80%;
+.react-calendar {
+  background: #1e293b;
+  border: none;
+  border-radius: 16px;
+  padding: 20px;
+  color: white;
+  width: 80%;
   max-width: 900px;
   margin: 20px auto;
 }
 
-.react-calendar__navigation button{
-  color:white;
-  font-size:18px;
+.react-calendar__navigation button {
+  color: white;
+  font-size: 18px;
 }
 
-.react-calendar__month-view__weekdays{
-  color:#94a3b8;
+.react-calendar__month-view__weekdays {
+  color: #94a3b8;
 }
 
-.react-calendar__tile{
-  border-radius:10px;
-  padding:10px;
+.react-calendar__tile {
+  border-radius: 10px;
+  padding: 10px;
 }
 
-.react-calendar__tile:hover{
-  background:#334155;
+.react-calendar__tile:hover {
+  background: #334155;
 }
 
-.react-calendar__tile--active{
-  background:#22c55e !important;
-  color:white;
+.react-calendar__tile--active {
+  background: #22c55e !important;
+  color: white;
 }
 
-.react-calendar__tile--now{
-  background:#334155;
+.react-calendar__tile--now {
+  background: #334155;
 }
 
-.dot{
+.dot {
   width: 6px;
   height: 6px;
   background: #22c55e;
@@ -46,25 +46,27 @@
 }
 
 /* モーダル */
-.modal-overlay{
+.modal-overlay {
   position: fixed;
   inset: 0;
-  background:rgba(0,0,0,0.6);
+  background: rgba(0, 0, 0, 0.6);
   display: flex;
   justify-content: center;
   align-items: center;
-  backdrop-filter:blur(6px);
+  backdrop-filter: blur(6px);
 }
-.modal{
+
+.modal {
   background: #1e293b;
   width: 320px;
   max-width: 90%;
   border-radius: 16px;
   padding: 20px;
-   box-shadow:0 10px 30px rgba(0,0,0,0.5);
-   animation: modalIn .3s ease;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+  animation: modalIn .3s ease;
 }
-.modal button{
+
+.modal button {
   width: 100%;
   margin-top: 15px;
   padding: 10px;
@@ -74,34 +76,40 @@
   color: white;
   font-weight: bold;
 }
-@keyframes modalIn{
-  from{
-    transform:translateY(20px);
+
+@keyframes modalIn {
+  from {
+    transform: translateY(20px);
     opacity: 0;
   }
-  to{
+
+  to {
     transform: translateY(0);
     opacity: 1;
   }
 }
-.day-training h3{
+
+.day-training h3 {
   text-align: center;
   margin-bottom: 15px;
   font-size: 18px;
   color: #e2e8f0;
 }
-.day-item{
+
+.day-item {
   background: #0f172a;
   padding: 12px;
   border-radius: 10px;
   margin-bottom: 10px;
 }
-.exercise{
+
+.exercise {
   font-weight: bold;
   color: #22c55e;
   margin-bottom: 6px;
 }
-.sets{
+
+.sets {
   font-size: 14px;
   color: #cbd5f5;
 }
