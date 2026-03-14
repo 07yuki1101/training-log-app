@@ -28,7 +28,10 @@ button {
 h1 {
   cursor: pointer;
 }
-
+.head-btn{
+  display: flex;
+  gap: 10px;
+}
 /* ログインページ */
 .login-btn {
   display: flex;
@@ -198,8 +201,10 @@ table {
 
 
 .table-action {
+  display: flex;
   width: 20%;
   text-align: right;
+  gap: 10px;
 }
 
 .item-card {
@@ -311,7 +316,8 @@ table {
 }
 
 .graph-switch button {
-  width: 50px;
+  padding: 6px 0;
+  width: 60px;
 }
 
 .graph-style {
@@ -425,4 +431,7 @@ table {
   padding: 4px;
   border-bottom: 1px solid #e2e8f054;
 
+}
+.small-btn{
+  padding: 6px;
 }

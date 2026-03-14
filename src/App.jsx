@@ -72,13 +72,13 @@ function App() {
     <div>
       <header>
         <h1 onClick={() => setPage(null)}>Training Log</h1>
-        <div>
+        <div className="head-btn">
           <button onClick={handleLogout}>
-            <span className="material-symbols-outlined">
+            <span className="material-symbols-outlined small-btn">
               logout
             </span>
           </button>
-          <button onClick={() => setPage('setting')}><span className="material-symbols-outlined">
+          <button onClick={() => setPage('setting')}><span className="material-symbols-outlined small-btn">
             settings
           </span></button>
         </div>

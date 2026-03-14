@@ -241,13 +241,13 @@ function TrainingPage({ user, exercises, records, setRecords, fetchRecords }) {
             <div key={day.date}>
               <div className="date">
                 <h3>{day.date}</h3>
-                <div>
-                  <button onClick={() => handleDeleteDate(day.date)}><span className="material-symbols-outlined delete">
+                <div className="table-action">
+                  <button onClick={() => handleDeleteDate(day.date)}><span className="material-symbols-outlined delete small-btn">
                     delete
                   </span></button>
-                  <button onClick={() => toggleItem(day.date)}>{openItem.includes(day.date) ? <span className="material-symbols-outlined arrow">
+                  <button onClick={() => toggleItem(day.date)}>{openItem.includes(day.date) ? <span className="material-symbols-outlined arrow small-btn">
                     keyboard_arrow_up
-                  </span> : <span className="material-symbols-outlined arrow">
+                  </span> : <span className="material-symbols-outlined arrow small-btn">
                     keyboard_arrow_down
                   </span>}</button>
                 </div>
@@ -259,18 +259,18 @@ function TrainingPage({ user, exercises, records, setRecords, fetchRecords }) {
                     <div key={item.id} className="item-card">
                       <div className="item-name">
                         <div className="train-name">{item.exercise}</div>
-                        <div className="table-action"><button onClick={() => {
-                          setShowForm(true); setEditRecord(item); setNewRecords({
-                            date: day.date,
-                            exercise: item.exercise,
-
-                            sets: item.sets,
-                          })
-                        }}><span className="material-symbols-outlined edit">
-                            edit
-                          </span></button><button onClick={() => handleDeleteItem(item.id)}><span className="material-symbols-outlined delete">
-                            delete
-                          </span></button></div>
+                        <div className="table-action">
+                          <button onClick={() => {
+                            setShowForm(true); setEditRecord(item); setNewRecords({
+                              date: day.date,
+                              exercise: item.exercise,
+                              sets: item.sets,
+                            })
+                          }}><span className="material-symbols-outlined edit small-btn">
+                              edit
+                            </span></button><button onClick={() => handleDeleteItem(item.id)}><span className="material-symbols-outlined delete small-btn">
+                              delete
+                            </span></button></div>
                       </div>
                       <div className="item-sets">
                         {item.sets.map((set, i) => (

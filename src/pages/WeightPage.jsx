@@ -122,7 +122,9 @@ function WeightPage({ user }) {
               onChange={(e) => setNewWeight({ ...newWeight, bw: e.target.value })} />
 
             <button className="add-btn" onClick={handleAddWeight}>追加</button>
-            <button className="cancel-btn" onClick={() => { setShowForm(false); setNewWeight({ date: '', bw: '' }) }}>×</button>
+            <button className="cancel-btn" onClick={() => { setShowForm(false); setNewWeight({ date: '', bw: '' }) }}><span className="material-symbols-outlined cancel">
+            close_small
+          </span></button>
           </div>
         )}
 
@@ -131,9 +133,9 @@ function WeightPage({ user }) {
 
         <div className="graph">
           <div className="graph-switch">
-            <button onClick={() => setRange(30)}>1ヶ月</button>
-            <button onClick={() => setRange(180)}>6ヶ月</button>
-            <button onClick={() => setRange(365)}>1年</button>
+            <button className="range-btn" onClick={() => setRange(30)}>1ヶ月</button>
+            <button className="range-btn" onClick={() => setRange(180)}>6ヶ月</button>
+            <button className="range-btn" onClick={() => setRange(365)}>1年</button>
           </div>
           <div className="graph-style">
             <ResponsiveContainer width="100%" height={250}>
@@ -171,7 +173,7 @@ function WeightPage({ user }) {
                   <tr key={day.id} className="date">
                     <td>{day.date}</td>
                     <td>{day.bw} kg</td>
-                    <td><button onClick={() => handleDelete(day.id)}><span className="material-symbols-outlined delete">
+                    <td><button onClick={() => handleDelete(day.id)}><span className="material-symbols-outlined delete small-btn">
                       delete
                     </span></button></td>
                   </tr>
