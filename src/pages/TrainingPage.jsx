@@ -182,10 +182,10 @@ function TrainingPage({ user, exercises, records, setRecords, fetchRecords }) {
             ))}
           </select>
           {previous && (
-            <div className="previous-sets">
+            <div className="previous-data">
               前回
               {previous.sets.map((set, i) => (
-                <div key={i}>
+                <div className="previous-sets" key={i}>
                   {set.weight} kg × {set.reps}
                 </div>
               ))}
@@ -275,7 +275,7 @@ function TrainingPage({ user, exercises, records, setRecords, fetchRecords }) {
                       <div className="item-sets">
                         {item.sets.map((set, i) => (
                           <div key={i}>
-                            {set.weight} kg × {set.reps} reps
+                            {set.weight} kg × {set.reps}
                           </div>
                         ))}
 

@@ -51,7 +51,7 @@ function CalendarPage({ records }) {
                   </div>
                   {r.sets.map((set, i) => (
                     <div key={i} className="sets">
-                      {set.weight} kg × {set.reps} reps
+                      {set.weight} kg × {set.reps}
                     </div>
                   ))}
                 </div>

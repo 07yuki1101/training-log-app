@@ -1,7 +1,7 @@
 import { collection, getDocs, addDoc, deleteDoc, doc } from "firebase/firestore";
 import { db } from "../firebase"
 import { useEffect, useState, } from "react";
-import { LineChart, Line, XAxis, YAxis, ResponsiveContainer } from "recharts";
+import { LineChart, Line, XAxis, YAxis, ResponsiveContainer, Tooltip } from "recharts";
 function WeightPage({ user }) {
   const [weight, setWeight] = useState(() => {
     const saved = localStorage.getItem("weight");
@@ -35,8 +35,8 @@ function WeightPage({ user }) {
 
 
   const handleAddWeight = async () => {
-    console.log('user:',user)
-    console.log('newWeight:',newWeight)
+    console.log('user:', user)
+    console.log('newWeight:', newWeight)
     if (!newWeight.bw) {
       alert('体重を入力してください')
       return
@@ -69,16 +69,16 @@ function WeightPage({ user }) {
     }
 
   };
-  const handleDelete = async(id) => {
+  const handleDelete = async (id) => {
     const ok = window.confirm("この記録を消しますか？");
     if (!ok) return;
-    try{
+    try {
       await deleteDoc(
-        doc(db,'users',user.uid,'weights',id)
+        doc(db, 'users', user.uid, 'weights', id)
       );
-      setWeight(prev=> prev.filter(item=>item.id !== id))
-    }catch(error){
-      console.error('削除エラー:',error);
+      setWeight(prev => prev.filter(item => item.id !== id))
+    } catch (error) {
+      console.error('削除エラー:', error);
     }
   };
   const [range, setRange] = useState(30);
@@ -91,19 +91,20 @@ function WeightPage({ user }) {
     })
     .sort((a, b) => new Date(a.date) - new Date(b.date));
 
-    const getToday = ()=>{
-      const today = new Date();
-      return today.toISOString().split('T')[0]
-    }
-    
+  const getToday = () => {
+    const today = new Date();
+    return today.toISOString().split('T')[0]
+  }
+
   return (
     <div>
       <div >
         {!showForm && (
           <div className="form-switch">
-            <button className="add-btn" onClick={() => {setShowForm(true);
-              setNewWeight(prev=>({
-                ...prev,date:getToday()
+            <button className="add-btn" onClick={() => {
+              setShowForm(true);
+              setNewWeight(prev => ({
+                ...prev, date: getToday()
               }))
             }}>体重を追加</button>
           </div>
@@ -137,7 +138,9 @@ function WeightPage({ user }) {
           <div className="graph-style">
             <ResponsiveContainer width="100%" height={250}>
               <LineChart data={filteredWeight}>
-                <XAxis dataKey="date"
+
+                <XAxis
+                  dataKey="date"
                   tickFormatter={(value) => {
                     const d = new Date(value);
                     const month = d.getMonth() + 1;
@@ -145,6 +148,14 @@ function WeightPage({ user }) {
                     return `${month}.${day}`;
                   }}></XAxis>
                 <YAxis domain={['dataMin - 5', 'dataMax +5']}></YAxis>
+                <Tooltip 
+                contentStyle={{
+                  background:"#1e293b",
+                  border:"none",
+                  borderRadius:"8px",
+                  color:"white"
+                }}
+                formatter={(value)=>`${value} kg`}/>
                 <Line dataKey="bw"></Line>
               </LineChart>
             </ResponsiveContainer>
