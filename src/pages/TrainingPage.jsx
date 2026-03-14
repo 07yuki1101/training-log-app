@@ -255,7 +255,6 @@ function TrainingPage({ user, exercises, records, setRecords, fetchRecords }) {
               {openItem.includes(day.date) && (
                 <div>
                   {day.items.map(item => (
-
                     <div key={item.id} className="item-card">
                       <div className="item-name">
                         <div className="train-name">{item.exercise}</div>
@@ -266,9 +265,9 @@ function TrainingPage({ user, exercises, records, setRecords, fetchRecords }) {
                               exercise: item.exercise,
                               sets: item.sets,
                             })
-                          }}><span className="material-symbols-outlined edit small-btn">
+                          }}><span className="material-symbols-outlined edit card-btn">
                               edit
-                            </span></button><button onClick={() => handleDeleteItem(item.id)}><span className="material-symbols-outlined delete small-btn">
+                            </span></button><button onClick={() => handleDeleteItem(item.id)}><span className="material-symbols-outlined delete card-btn">
                               delete
                             </span></button></div>
                       </div>

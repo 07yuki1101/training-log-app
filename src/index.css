@@ -20,18 +20,21 @@ header {
 }
 
 button {
-  background: none;
+  background: transparent;
   padding: 0px;
   color: #f8fcfc;
+  border: none;
 }
 
 h1 {
   cursor: pointer;
 }
-.head-btn{
+
+.head-btn {
   display: flex;
   gap: 10px;
 }
+
 /* ログインページ */
 .login-btn {
   display: flex;
@@ -87,12 +90,14 @@ input[type="date"] {
   color: #eeeeee67;
   height: 32px;
   font-size: 16px;
-  padding:  0 8px;
+  padding: 0 8px;
 }
-.form option{
+
+.form option {
   font-size: 16px;
-  
+
 }
+
 .add-btn {
   background: linear-gradient(135deg, #22c55e, #16a34a);
   color: #ffffff;
@@ -119,11 +124,13 @@ input[type="date"] {
   border-radius: 50%;
   font-size: 18px;
 }
-.cancel{
+
+.cancel {
   font-size: 18px;
   display: block;
   margin: auto;
 }
+
 @keyframes formIn {
   from {
     transform: translateY(-20px);
@@ -135,18 +142,20 @@ input[type="date"] {
     opacity: 1;
   }
 }
-.set-row{
+
+.set-row {
   position: relative;
 }
 
 
-.set-count{
+.set-count {
   display: flex;
   gap: 10px;
   justify-content: center;
   margin: 15px;
 }
-.set-count button{
+
+.set-count button {
   display: block;
   width: 40px;
   height: 40px;
@@ -156,11 +165,13 @@ input[type="date"] {
   border: none;
   background: #1e293b;
 }
-.set-add{
+
+.set-add {
   display: block;
   margin: auto;
 }
-.previous-data{
+
+.previous-data {
   font-size: 14px;
 }
 
@@ -186,19 +197,12 @@ input[type="date"] {
   border-bottom: 1px solid #eeeeee67;
   display: flex;
   justify-content: space-between;
-  padding-top: 10px;
+  margin-bottom: 10px;
 }
 
-
-table {
-  max-width: 600px;
-  width: 100%;
-  text-align: left;
-  border-collapse: separate;
-  border-spacing: 0 10px;
-  table-layout: fixed;
+.date h3 {
+  font-size: 18px;
 }
-
 
 .table-action {
   display: flex;
@@ -208,13 +212,18 @@ table {
 }
 
 .item-card {
-  padding: 10px 0;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(0, 0, 0, 0.6);
+  padding: 12px;
+  border-radius: 10px;
+  margin-bottom: 10px;
 }
 
 .item-name {
   display: flex;
   justify-content: space-between;
+  font-weight: bold;
+  color: #22c55e;
+  margin-bottom: 6px;
 }
 
 .item-sets {
@@ -251,7 +260,7 @@ table {
   display: block;
   width: 100px;
   height: 100px;
-  /* border: 1px solid #eeeeee67; */
+  border: none;
   box-shadow: 0 10px 40px rgba(0, 0, 0, 1);
   background: transparent;
   transition: .3s;
@@ -277,6 +286,9 @@ table {
   display: block;
   width: 60px;
   height: 60px;
+  border: none;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 1);
+  background: transparent;
   transition: .3s;
 }
 
@@ -292,7 +304,6 @@ table {
 /* 食事ページ */
 .meal-item {
   border-bottom: 1px solid #eeeeee67;
-
 }
 
 .meal-date {
@@ -300,7 +311,25 @@ table {
   justify-content: space-between;
 }
 
+.meal-date h3 {
+  font-size: 18px;
+}
+
+.food-card {
+  display: flex;
+  justify-content: space-between;
+}
+
 /* 体重ページ */
+table {
+  max-width: 600px;
+  width: 100%;
+  text-align: left;
+  border-collapse: separate;
+  border-spacing: 0 10px;
+  table-layout: fixed;
+}
+
 .graph {
   max-width: 600px;
   width: 90%;
@@ -432,6 +461,22 @@ table {
   border-bottom: 1px solid #e2e8f054;
 
 }
-.small-btn{
+
+.small-btn {
   padding: 6px;
+
+}
+
+.small-btn,
+.card-btn {
+  border: none;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 1);
+  background: #1d223a;
+  transition: .3s;
+}
+.small-btn:hover{
+background: #1a2848;;
+}
+.card-btn:hover{
+background: #1a2848;;
 }

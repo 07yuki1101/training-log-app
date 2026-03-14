@@ -193,16 +193,15 @@ function MealPage({ user }) {
                 </p>
               </div>
               {openDate.includes(day.date) && (
-                <table>
-                  <tbody>
+                <div>
                     {day.foods.map(food => (
-                      <tr key={food.id}>
-                        <td>{food.timing}</td>
-                        <td>{food.calories} kcal</td>
-                        <td>{food.protein} g</td>
-                        <td className="table-action">
+                      <div key={food.id} className="food-card">
+                        <div>{food.timing}</div>
+                        <div>{food.calories} kcal</div>
+                        <div>{food.protein} g</div>
+                        <div className="table-action">
                           <button onClick={() => handleDeleteFood(food.id)}>
-                            <span className="material-symbols-outlined delete small-btn">
+                            <span className="material-symbols-outlined delete card-btn">
                               delete
                             </span>
                           </button>
@@ -214,15 +213,14 @@ function MealPage({ user }) {
                               protein: food.protein
                             })
                             setShowForm(true)
-                          }}><span className="material-symbols-outlined edit small-btn">
+                          }}><span className="material-symbols-outlined edit card-btn">
                               edit
                             </span>
                           </button>
-                        </td>
-                      </tr>
+                        </div>
+                      </div>
                     ))}
-                  </tbody>
-                </table>
+                 </div>
               )}
 
             </div>
