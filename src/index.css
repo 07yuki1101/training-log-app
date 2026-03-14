@@ -67,9 +67,10 @@ h1 {
 }
 
 input[type="date"] {
+  appearance: none;
+  -webkit-appearance: none;
   color: #eeeeee67;
-  text-align: left;
-  padding: 12;
+  padding: 12px;
 }
 
 .form select {
