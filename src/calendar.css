@@ -60,11 +60,15 @@
   background: #1e293b;
   width: 320px;
   max-width: 90%;
+  max-height: 80vh;
+  overflow-y: auto;
   border-radius: 16px;
   padding: 20px;
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
   animation: modalIn .3s ease;
+  -webkit-overflow-scrolling: touch;
 }
+
 
 .modal button {
   width: 100%;

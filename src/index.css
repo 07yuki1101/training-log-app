@@ -40,6 +40,7 @@ h1 {
   display: flex;
   margin: 20px auto;
   height: 40px;
+  border: 1px solid ;
   border-radius: 30px;
   padding: 10px;
   align-items: center;
@@ -462,6 +463,8 @@ table {
 
 }
 
+
+/* ボタン */
 .small-btn {
   padding: 6px;
 
