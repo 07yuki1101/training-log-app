@@ -12,6 +12,8 @@ function WeightPage({ user }) {
     date: '', bw: ''
   });
 
+  const NEXT_URL = "https://training-api-kohl.vercel.app";
+
   useEffect(() => {
     if (!user) return;
 
@@ -42,27 +44,23 @@ function WeightPage({ user }) {
       return
     }
     try {
-      await addDoc(
-        collection(db, 'users', user.uid, 'weights'),
-        {
+      const res = await fetch(`${NEXT_URL}/api/weight`, {
+        method: 'POST',
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          userId: user.uid,
+          weight: Number(newWeight.bw),
           date: newWeight.date,
-          bw: Number(newWeight.bw),
-        }
-      );
-
-      const querySnapshot = await getDocs(
-        collection(db, 'users', user.uid, 'weights')
-      );
-
-      const data = querySnapshot.docs.map(doc => ({
-        id: doc.id,
-        ...doc.data(),
-      }));
-
-      setWeight(data);
-
-      setNewWeight({ date: '', bw: '' });
-      setShowForm(false);
+        }),
+      });
+      const dataApi = await res.json()
+      console.log("API結果:", dataApi)
+      const resGet = await fetch(`${NEXT_URL}/api/weight?userId=${user.uid}`);
+      const data = await resGet.json()
+      setWeight(data)
+      setShowForm(false)
 
     } catch (error) {
       console.error('firestore保存エラー:', error);
@@ -73,10 +71,22 @@ function WeightPage({ user }) {
     const ok = window.confirm("この記録を消しますか？");
     if (!ok) return;
     try {
-      await deleteDoc(
-        doc(db, 'users', user.uid, 'weights', id)
-      );
-      setWeight(prev => prev.filter(item => item.id !== id))
+      const res = await fetch(`${NEXT_URL}/api/weight`, {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          userId: user.uid,
+          id: id,
+        }),
+      });
+      
+      const data = await res.json();
+      console.log("削除結果:", data);
+      
+      // UI更新
+      setWeight(prev => prev.filter(item => item.id !== id));
     } catch (error) {
       console.error('削除エラー:', error);
     }
@@ -123,8 +133,8 @@ function WeightPage({ user }) {
 
             <button className="add-btn" onClick={handleAddWeight}>追加</button>
             <button className="cancel-btn" onClick={() => { setShowForm(false); setNewWeight({ date: '', bw: '' }) }}><span className="material-symbols-outlined cancel">
-            close_small
-          </span></button>
+              close_small
+            </span></button>
           </div>
         )}
 
@@ -150,14 +160,14 @@ function WeightPage({ user }) {
                     return `${month}.${day}`;
                   }}></XAxis>
                 <YAxis domain={['dataMin - 5', 'dataMax +5']}></YAxis>
-                <Tooltip 
-                contentStyle={{
-                  background:"#1e293b",
-                  border:"none",
-                  borderRadius:"8px",
-                  color:"white"
-                }}
-                formatter={(value)=>`${value} kg`}/>
+                <Tooltip
+                  contentStyle={{
+                    background: "#1e293b",
+                    border: "none",
+                    borderRadius: "8px",
+                    color: "white"
+                  }}
+                  formatter={(value) => `${value} kg`} />
                 <Line dataKey="bw"></Line>
               </LineChart>
             </ResponsiveContainer>
