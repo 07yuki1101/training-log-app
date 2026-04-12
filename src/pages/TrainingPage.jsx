@@ -104,6 +104,7 @@ function TrainingPage({ user, exercises, records, setRecords, fetchRecords }) {
   }
 
   const [openItem, setOpenItem] = useState([]);
+  const [showAllLog, setShowAllLog] = useState(false);
   const toggleItem = (date) => {
     setOpenItem(prev =>
       prev.includes(date)
@@ -235,61 +236,57 @@ function TrainingPage({ user, exercises, records, setRecords, fetchRecords }) {
 
       <div className="log">
         <h2 className="section-title">トレーニング記録</h2>
-        {Object.values(groupedRecords)
-          .sort((a, b) => b.date.localeCompare(a.date))
-          .map(day => (
-            <div key={day.date}>
-              <div className="date">
-                <h3>{day.date}</h3>
-                <div className="table-action">
-                  <button onClick={() => handleDeleteDate(day.date)}><span className="material-symbols-outlined delete small-btn">
-                    delete
-                  </span></button>
-                  <button onClick={() => toggleItem(day.date)}>{openItem.includes(day.date) ? <span className="material-symbols-outlined arrow small-btn">
-                    keyboard_arrow_up
-                  </span> : <span className="material-symbols-outlined arrow small-btn">
-                    keyboard_arrow_down
-                  </span>}</button>
-                </div>
-              </div>
-              {openItem.includes(day.date) && (
-                <div>
-                  {day.items.map(item => (
-                    <div key={item.id} className="item-card">
-                      <div className="item-name">
-                        <div className="train-name">{item.exercise}</div>
-                        <div className="table-action">
-                          <button onClick={() => {
-                            setShowForm(true); setEditRecord(item); setNewRecords({
-                              date: day.date,
-                              exercise: item.exercise,
-                              sets: item.sets,
-                            })
-                          }}><span className="material-symbols-outlined edit card-btn">
-                              edit
-                            </span></button><button onClick={() => handleDeleteItem(item.id)}><span className="material-symbols-outlined delete card-btn">
-                              delete
-                            </span></button></div>
-                      </div>
-                      <div className="item-sets">
-                        {item.sets.map((set, i) => (
-                          <div key={i}>
-                            {set.weight} kg × {set.reps}
-                          </div>
-                        ))}
-
-                      </div>
+        {(() => {
+          const sorted = Object.values(groupedRecords).sort((a, b) => b.date.localeCompare(a.date));
+          const LIMIT = 5;
+          const displayed = showAllLog ? sorted : sorted.slice(0, LIMIT);
+          return (
+            <>
+              {displayed.map(day => (
+                <div key={day.date}>
+                  <div className="date">
+                    <h3>{day.date}</h3>
+                    <div className="table-action">
+                      <button onClick={() => handleDeleteDate(day.date)}><span className="material-symbols-outlined delete small-btn">delete</span></button>
+                      <button onClick={() => toggleItem(day.date)}>
+                        {openItem.includes(day.date)
+                          ? <span className="material-symbols-outlined arrow small-btn">keyboard_arrow_up</span>
+                          : <span className="material-symbols-outlined arrow small-btn">keyboard_arrow_down</span>}
+                      </button>
                     </div>
-                  ))}
-
+                  </div>
+                  {openItem.includes(day.date) && (
+                    <div>
+                      {day.items.map(item => (
+                        <div key={item.id} className="item-card">
+                          <div className="item-name">
+                            <div className="train-name">{item.exercise}</div>
+                            <div className="table-action">
+                              <button onClick={() => { setShowForm(true); setEditRecord(item); setNewRecords({ date: day.date, exercise: item.exercise, sets: item.sets }) }}>
+                                <span className="material-symbols-outlined edit card-btn">edit</span>
+                              </button>
+                              <button onClick={() => handleDeleteItem(item.id)}>
+                                <span className="material-symbols-outlined delete card-btn">delete</span>
+                              </button>
+                            </div>
+                          </div>
+                          <div className="item-sets">
+                            {item.sets.map((set, i) => <div key={i}>{set.weight} kg × {set.reps}</div>)}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
                 </div>
-
-
+              ))}
+              {sorted.length > LIMIT && (
+                <button className="show-more-btn" onClick={() => setShowAllLog(v => !v)}>
+                  {showAllLog ? '閉じる' : `過去の記録をもっと見る（${sorted.length - LIMIT}件）`}
+                </button>
               )}
-
-            </div>
-          ))
-        }
+            </>
+          );
+        })()}
       </div>
 
     </div>

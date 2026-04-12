@@ -97,6 +97,7 @@ function MealPage({ user }) {
   }
 
   const [openDate, setOpenDate] = useState([]);
+  const [showAllLog, setShowAllLog] = useState(false);
 
   const toggleDate = (date) => {
     setOpenDate(prev =>
@@ -169,64 +170,62 @@ function MealPage({ user }) {
 
       <div className="log">
         <h2 className="section-title">食事記録</h2>
-        {Object.values(groupedMeals)
-          .sort((a, b) => b.date.localeCompare(a.date))
-          .map(day => (
-            <div key={day.date}>
-              <div className="meal-item">
-                <div className="meal-date">
-                  <h3>{day.date}</h3>
-                  <div className="table-action">
-                    <button onClick={() => handleDeleteMeal(day.date)}><span className="material-symbols-outlined delete small-btn">
-                      delete
-                    </span></button>
-                    <button onClick={() => toggleDate(day.date)}>{openDate.includes(day.date) ? <span className="material-symbols-outlined arrow small-btn">
-                      keyboard_arrow_up
-                    </span> : <span className="material-symbols-outlined arrow small-btn">
-                      keyboard_arrow_down
-                    </span>}</button>
-                  </div>
-                </div>
-                <p className="total">
-                  カロリー: {day.foods.reduce((sum, f) => sum + Number(f.calories), 0)} kcal
-                  たんぱく質: {day.foods.reduce((sum, f) => sum + Number(f.protein), 0)} g
-                </p>
-              </div>
-              {openDate.includes(day.date) && (
-                <div>
-                    {day.foods.map(food => (
-                      <div key={food.id} className="food-card">
-                        <div>{food.timing}</div>
-                        <div>{food.calories} kcal</div>
-                        <div>{food.protein} g</div>
-                        <div className="table-action">
-                          <button onClick={() => handleDeleteFood(food.id)}>
-                            <span className="material-symbols-outlined delete card-btn">
-                              delete
-                            </span>
-                          </button>
-                          <button onClick={() => {
-                            setEditMeal(food); setNewMeal({
-                              date: day.date,
-                              timing: food.timing,
-                              calories: food.calories,
-                              protein: food.protein
-                            })
-                            setShowForm(true)
-                          }}><span className="material-symbols-outlined edit card-btn">
-                              edit
-                            </span>
-                          </button>
-                        </div>
+        {(() => {
+          const sorted = Object.values(groupedMeals).sort((a, b) => b.date.localeCompare(a.date));
+          const LIMIT = 5;
+          const displayed = showAllLog ? sorted : sorted.slice(0, LIMIT);
+          return (
+            <>
+              {displayed.map(day => (
+                <div key={day.date}>
+                  <div className="meal-item">
+                    <div className="meal-date">
+                      <h3>{day.date}</h3>
+                      <div className="table-action">
+                        <button onClick={() => handleDeleteMeal(day.date)}>
+                          <span className="material-symbols-outlined delete small-btn">delete</span>
+                        </button>
+                        <button onClick={() => toggleDate(day.date)}>
+                          {openDate.includes(day.date)
+                            ? <span className="material-symbols-outlined arrow small-btn">keyboard_arrow_up</span>
+                            : <span className="material-symbols-outlined arrow small-btn">keyboard_arrow_down</span>}
+                        </button>
                       </div>
-                    ))}
-                 </div>
+                    </div>
+                    <p className="total">
+                      カロリー: {day.foods.reduce((sum, f) => sum + Number(f.calories), 0)} kcal
+                      　たんぱく質: {day.foods.reduce((sum, f) => sum + Number(f.protein), 0)} g
+                    </p>
+                  </div>
+                  {openDate.includes(day.date) && (
+                    <div>
+                      {day.foods.map(food => (
+                        <div key={food.id} className="food-card">
+                          <div>{food.timing}</div>
+                          <div>{food.calories} kcal</div>
+                          <div>{food.protein} g</div>
+                          <div className="table-action">
+                            <button onClick={() => handleDeleteFood(food.id)}>
+                              <span className="material-symbols-outlined delete card-btn">delete</span>
+                            </button>
+                            <button onClick={() => { setEditMeal(food); setNewMeal({ date: day.date, timing: food.timing, calories: food.calories, protein: food.protein }); setShowForm(true); }}>
+                              <span className="material-symbols-outlined edit card-btn">edit</span>
+                            </button>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              ))}
+              {sorted.length > LIMIT && (
+                <button className="show-more-btn" onClick={() => setShowAllLog(v => !v)}>
+                  {showAllLog ? '閉じる' : `過去の記録をもっと見る（${sorted.length - LIMIT}件）`}
+                </button>
               )}
-
-            </div>
-          ))
-        }
-
+            </>
+          );
+        })()}
       </div>
     </div>
   )

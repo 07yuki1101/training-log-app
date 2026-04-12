@@ -92,6 +92,7 @@ function WeightPage({ user }) {
     }
   };
   const [range, setRange] = useState(30);
+  const [showAllLog, setShowAllLog] = useState(false);
   const filteredWeight = weight
     .filter(item => {
       const today = new Date();
@@ -175,24 +176,35 @@ function WeightPage({ user }) {
         </div>
         <div className="weight-log">
           <h2 className="section-title">体重記録</h2>
-          <table>
-            <tbody>
-              {[...weight]
-                .sort((a, b) => b.date.localeCompare(a.date))
-                .map(day => (
-                  <tr key={day.id} className="date">
-                    <td>{day.date}</td>
-                    <td>{day.bw} kg</td>
-                    <td><button onClick={() => handleDelete(day.id)}><span className="material-symbols-outlined delete small-btn">
-                      delete
-                    </span></button></td>
-                  </tr>
-                ))
-              }
-
-            </tbody>
-          </table>
-
+          {(() => {
+            const sorted = [...weight].sort((a, b) => b.date.localeCompare(a.date));
+            const LIMIT = 10;
+            const displayed = showAllLog ? sorted : sorted.slice(0, LIMIT);
+            return (
+              <>
+                <table>
+                  <tbody>
+                    {displayed.map(day => (
+                      <tr key={day.id} className="date">
+                        <td>{day.date}</td>
+                        <td>{day.bw} kg</td>
+                        <td>
+                          <button onClick={() => handleDelete(day.id)}>
+                            <span className="material-symbols-outlined delete small-btn">delete</span>
+                          </button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+                {sorted.length > LIMIT && (
+                  <button className="show-more-btn" onClick={() => setShowAllLog(v => !v)}>
+                    {showAllLog ? '閉じる' : `過去の記録をもっと見る（${sorted.length - LIMIT}件）`}
+                  </button>
+                )}
+              </>
+            );
+          })()}
         </div>
       </div>
     </div>
