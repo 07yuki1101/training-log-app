@@ -1,7 +1,7 @@
-import { collection, getDocs, addDoc, doc, getDoc } from "firebase/firestore";
+import { collection, getDocs, addDoc, doc, getDoc, setDoc } from "firebase/firestore";
 import { db } from "../firebase"
 import { useEffect, useState } from "react";
-import { LineChart, Line, XAxis, YAxis, ResponsiveContainer, Tooltip, Legend } from "recharts";
+import { LineChart, Line, XAxis, YAxis, ResponsiveContainer, Tooltip, Legend, CartesianGrid } from "recharts";
 
 const NEXT_URL = "https://training-api-kohl.vercel.app";
 
@@ -87,8 +87,8 @@ function WeightPage({ user }) {
           const from = new Date(to);
           from.setFullYear(from.getFullYear() - 1);
           const fmt = (d) =>
-            `${d.getFullYear()}${String(d.getMonth() + 1).padStart(2, "0")}${String(d.getDate()).padStart(2, "0")}0000`;
-          const apiUrl = `https://www.healthplanet.jp/status/innerscan.json?access_token=${accessToken}&date=1&from=${fmt(from)}&to=${fmt(to)}&tag=6021,6022`;
+            `${d.getFullYear()}${String(d.getMonth() + 1).padStart(2, "0")}${String(d.getDate()).padStart(2, "0")}000000`;
+          const apiUrl = `https://www.healthplanet.jp/status/innerscan.json?access_token=${encodeURIComponent(accessToken)}&date=1&from=${fmt(from)}&to=${fmt(to)}&tag=6021,6022`;
           const hpRes = await fetch(apiUrl);
           const hpText = await hpRes.text();
           console.log('[client] HP status:', hpRes.status, 'body:', hpText.slice(0, 200));
@@ -97,14 +97,28 @@ function WeightPage({ user }) {
             const items = json.data ?? [];
             const existingSnap = await getDocs(collection(db, 'users', user.uid, 'weights'));
             const existingDates = new Set(existingSnap.docs.map(d => d.data().date));
-            let count = 0;
+
+            const byDate = new Map();
             for (const item of items) {
               const raw = item.date;
               const date = `${raw.slice(0, 4)}-${raw.slice(4, 6)}-${raw.slice(6, 8)}`;
-              const bw = parseFloat(item.keydata);
-              if (!existingDates.has(date) && !isNaN(bw)) {
+              const value = parseFloat(item.keydata);
+              if (isNaN(value)) continue;
+              if (!byDate.has(date)) byDate.set(date, {});
+              const entry = byDate.get(date);
+              if (item.tag === '6021') entry.bw = value;
+              else if (item.tag === '6022') entry.bf = value;
+            }
+
+            let count = 0;
+            for (const [date, entry] of byDate) {
+              if (!existingDates.has(date) && entry.bw !== undefined) {
                 await addDoc(collection(db, 'users', user.uid, 'weights'), {
-                  date, bw, source: 'tanita', syncedAt: new Date(),
+                  date,
+                  bw: entry.bw,
+                  ...(entry.bf !== undefined ? { bf: entry.bf } : {}),
+                  source: 'tanita',
+                  syncedAt: new Date(),
                 });
                 count++;
               }
@@ -243,23 +257,37 @@ function WeightPage({ user }) {
                   const d = new Date(value);
                   return `${d.getMonth() + 1}.${String(d.getDate()).padStart(2, "0")}`;
                 }} />
-              <YAxis domain={['dataMin - 5', 'dataMax + 5']} />
+              <YAxis
+                yAxisId="bw"
+                domain={['dataMin - 2', 'dataMax + 2']}
+                tickFormatter={(v) => `${v}`}
+              />
+              <YAxis
+                yAxisId="bf"
+                orientation="right"
+                domain={['dataMin - 2', 'dataMax + 2']}
+                tickFormatter={(v) => `${v}%`}
+              />
               <Tooltip
                 contentStyle={{ background: "#17122e", border: "none", borderRadius: "8px", color: "white" }}
-                formatter={(value, _name, props) => [
-                  `${value} kg`,
-                  props.payload.source === 'tanita' ? 'タニタ' : '手動'
-                ]} />
+                formatter={(value, name) => {
+                  if (name === 'bw') return [`${value} kg`, '体重'];
+                  if (name === 'bf') return [`${value} %`, '体脂肪率'];
+                  return [value, name];
+                }} />
               <Line
+                yAxisId="bw"
                 dataKey="bw"
                 stroke="#18ffff"
                 strokeWidth={2}
+                connectNulls
                 dot={(props) => {
                   const { cx, cy, payload } = props;
+                  if (payload.bw == null) return null;
                   const isTanita = payload.source === 'tanita';
                   return (
                     <circle
-                      key={`dot-${cx}-${cy}`}
+                      key={`bw-${cx}-${cy}`}
                       cx={cx} cy={cy} r={4}
                       fill={isTanita ? '#18ffff' : '#00e676'}
                       stroke={isTanita ? 'rgba(24,255,255,0.3)' : 'rgba(0,230,118,0.3)'}
@@ -268,11 +296,33 @@ function WeightPage({ user }) {
                   );
                 }}
               />
+              <Line
+                yAxisId="bf"
+                dataKey="bf"
+                stroke="#ff6b6b"
+                strokeWidth={2}
+                strokeDasharray="4 2"
+                connectNulls
+                dot={(props) => {
+                  const { cx, cy, payload } = props;
+                  if (payload.bf == null) return null;
+                  return (
+                    <circle
+                      key={`bf-${cx}-${cy}`}
+                      cx={cx} cy={cy} r={4}
+                      fill="#ff6b6b"
+                      stroke="rgba(255,107,107,0.3)"
+                      strokeWidth={2}
+                    />
+                  );
+                }}
+              />
             </LineChart>
           </ResponsiveContainer>
           <div className="graph-legend">
-            <span className="legend-tanita"><span className="legend-dot" />タニタ</span>
-            <span className="legend-manual"><span className="legend-dot" />手動</span>
+            <span className="legend-tanita"><span className="legend-dot" />体重 (kg)</span>
+            <span className="legend-bf"><span className="legend-dot legend-dot--bf" />体脂肪率 (%)</span>
+            <span className="legend-manual"><span className="legend-dot legend-dot--manual" />手動</span>
           </div>
         </div>
       </div>
@@ -297,6 +347,9 @@ function WeightPage({ user }) {
                           ? <span className="source-badge source-badge--tanita">タニタ</span>
                           : <span className="source-badge source-badge--manual">手動</span>
                         }
+                      </td>
+                      <td className="bf-cell">
+                        {day.bf != null ? `${day.bf} %` : '—'}
                       </td>
                       <td>
                         <button onClick={() => handleDelete(day.id)}>

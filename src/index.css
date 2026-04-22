@@ -1152,6 +1152,19 @@ tr.date td:last-child {
 }
 .legend-tanita .legend-dot { background: var(--weight); }
 .legend-manual .legend-dot { background: var(--green); }
+.legend-bf {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  color: #ff6b6b;
+}
+.legend-dot--bf { background: #ff6b6b; }
+.legend-dot--manual { background: var(--green); }
+
+.bf-cell {
+  color: #ff6b6b;
+  font-size: 13px;
+}
 
 /* Responsive */
 @media (max-width: 768px) {
