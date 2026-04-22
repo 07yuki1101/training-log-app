@@ -2,6 +2,8 @@ import { useState, useEffect } from "react"
 import { collection, getDocs, addDoc, deleteDoc, updateDoc, doc, query, orderBy, serverTimestamp } from "firebase/firestore";
 import { db } from "../firebase";
 
+const BODY_PART_ORDER = ['胸', '背中', '肩', '腕', '脚', '腹筋', 'その他'];
+
 function TrainingPage({ user, exercises, records, setRecords, fetchRecords }) {
 
   const [showForm, setShowForm] = useState(false);
@@ -177,10 +179,23 @@ function TrainingPage({ user, exercises, records, setRecords, fetchRecords }) {
           <select
             value={newRecords.exercise}
             onChange={(e) => setNewRecords({ ...newRecords, exercise: e.target.value })}>
-            <option value="">種目</option>
-            {exercises.map(ex => (
-              <option key={ex.id} value={ex.name}>{ex.name}</option>
-            ))}
+            <option value="">種目を選択</option>
+            {(() => {
+              const grouped = exercises.reduce((acc, ex) => {
+                const part = ex.bodyPart || 'その他';
+                if (!acc[part]) acc[part] = [];
+                acc[part].push(ex);
+                return acc;
+              }, {});
+              const parts = BODY_PART_ORDER.filter(p => grouped[p]);
+              return parts.map(part => (
+                <optgroup key={part} label={`── ${part}`}>
+                  {grouped[part].map(ex => (
+                    <option key={ex.id} value={ex.name}>{ex.name}</option>
+                  ))}
+                </optgroup>
+              ));
+            })()}
           </select>
           {previous && (
             <div className="previous-data">
