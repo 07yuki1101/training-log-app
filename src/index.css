@@ -1071,6 +1071,23 @@ tr.date td:last-child {
 .tanita-sync-btn:active { transform: scale(0.95); }
 .tanita-sync-btn:disabled { opacity: 0.5; cursor: default; }
 
+.tanita-test-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  background: none;
+  border: 1px solid var(--border);
+  border-radius: var(--r-full);
+  color: var(--muted);
+  cursor: pointer;
+  transition: color 0.2s, border-color 0.2s;
+  flex-shrink: 0;
+}
+.tanita-test-btn .material-symbols-outlined { font-size: 16px; }
+.tanita-test-btn:hover { color: var(--text); border-color: rgba(255,255,255,0.3); }
+
 @keyframes spin {
   from { transform: rotate(0deg); }
   to   { transform: rotate(360deg); }

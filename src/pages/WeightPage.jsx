@@ -56,6 +56,23 @@ function WeightPage({ user }) {
     checkToken();
   }, [user]);
 
+  const buildHpUrl = async () => {
+    const tokenSnap = await getDoc(doc(db, 'users', user.uid, 'tokens', 'tanita'));
+    if (!tokenSnap.exists()) return null;
+    const { accessToken } = tokenSnap.data();
+    const to = new Date();
+    const from = new Date(to);
+    from.setFullYear(from.getFullYear() - 1);
+    const fmt = (d) =>
+      `${d.getFullYear()}${String(d.getMonth() + 1).padStart(2, "0")}${String(d.getDate()).padStart(2, "0")}0000`;
+    return `https://www.healthplanet.jp/status/innerscan.json?access_token=${accessToken}&date=1&from=${fmt(from)}&to=${fmt(to)}&tag=6021,6022`;
+  };
+
+  const handleTokenTest = async () => {
+    const url = await buildHpUrl();
+    if (url) window.open(url, '_blank');
+  };
+
   const handleTanitaSync = async () => {
     setSyncing(true);
     setSyncMsg('');
@@ -176,6 +193,9 @@ function WeightPage({ user }) {
                 ? <span className="material-symbols-outlined tanita-spin">sync</span>
                 : <span className="material-symbols-outlined">sync</span>}
               {syncing ? '同期中' : '同期'}
+            </button>
+            <button className="tanita-test-btn" onClick={handleTokenTest} title="トークンテスト">
+              <span className="material-symbols-outlined">open_in_new</span>
             </button>
           </div>
           {syncMsg && <p className="sync-msg">{syncMsg}</p>}
