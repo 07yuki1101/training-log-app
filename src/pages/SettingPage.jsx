@@ -1,6 +1,8 @@
 import { useState, useEffect } from "react";
-import { collection, getDocs, addDoc, deleteDoc, updateDoc, doc } from "firebase/firestore";
+import { collection, getDocs, addDoc, deleteDoc, updateDoc, doc, getDoc } from "firebase/firestore";
 import { db } from "../firebase";
+
+const NEXT_URL = "https://training-api-kohl.vercel.app";
 
 const BODY_PARTS = ['胸', '背中', '肩', '腕', '脚', '腹筋', 'その他'];
 
@@ -11,6 +13,9 @@ function SettingPage({ user, exercises, setExercises }) {
   const [editName, setEditName] = useState('');
   const [editBodyPart, setEditBodyPart] = useState('');
 
+  const [tanitaConnected, setTanitaConnected] = useState(false);
+  const [tanitaMsg, setTanitaMsg] = useState('');
+
   const fetchExercises = async () => {
     const snap = await getDocs(collection(db, 'users', user.uid, 'exercises'));
     const data = snap.docs.map(d => ({ id: d.id, ...d.data() }));
@@ -20,7 +25,22 @@ function SettingPage({ user, exercises, setExercises }) {
   useEffect(() => {
     if (!user) return;
     fetchExercises();
+    getDoc(doc(db, 'users', user.uid, 'tokens', 'tanita'))
+      .then(snap => setTanitaConnected(snap.exists()))
+      .catch(() => setTanitaConnected(false));
   }, [user]);
+
+  const handleTanitaConnect = () => {
+    window.location.href = `${NEXT_URL}/api/tanita/connect?uid=${user.uid}`;
+  };
+
+  const handleTanitaDisconnect = async () => {
+    const ok = window.confirm('HealthPlanet との連携を解除しますか？');
+    if (!ok) return;
+    await deleteDoc(doc(db, 'users', user.uid, 'tokens', 'tanita'));
+    setTanitaConnected(false);
+    setTanitaMsg('連携を解除しました');
+  };
 
   const handleAddExercise = async () => {
     if (!newName || !newBodyPart) return;
@@ -119,6 +139,25 @@ function SettingPage({ user, exercises, setExercises }) {
   return (
     <div className="setting">
       <h2 className="setting-title">設定</h2>
+
+      {/* 外部連携 */}
+      <div className="setting-section-label">外部連携</div>
+      <div className="setting-card integration-card">
+        <span className="material-symbols-outlined integration-icon">monitor_weight</span>
+        <div className="integration-info">
+          <span className="integration-name">HealthPlanet</span>
+          <span className={`integration-status ${tanitaConnected ? 'connected' : 'disconnected'}`}>
+            {tanitaConnected ? '連携中' : '未連携'}
+          </span>
+        </div>
+        {tanitaConnected ? (
+          <button className="integration-disconnect-btn" onClick={handleTanitaDisconnect}>解除</button>
+        ) : (
+          <button className="integration-connect-btn" onClick={handleTanitaConnect}>連携</button>
+        )}
+      </div>
+      {tanitaMsg && <p className="sync-msg">{tanitaMsg}</p>}
+
       <div className="setting-card">
         <button className="setting-btn" onClick={() => setShowForm(prev => !prev)}>種目追加</button>
       </div>

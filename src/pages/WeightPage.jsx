@@ -16,6 +16,7 @@ function WeightPage({ user }) {
   const [syncing, setSyncing] = useState(false);
   const [syncMsg, setSyncMsg] = useState('');
 
+
   const fetchWeight = async () => {
     try {
       const querySnapshot = await getDocs(collection(db, 'users', user.uid, 'weights'));
@@ -54,10 +55,6 @@ function WeightPage({ user }) {
     };
     checkToken();
   }, [user]);
-
-  const handleTanitaConnect = () => {
-    window.location.href = `${NEXT_URL}/api/tanita/connect?uid=${user.uid}`;
-  };
 
   const handleTanitaSync = async () => {
     setSyncing(true);
@@ -122,14 +119,12 @@ function WeightPage({ user }) {
 
   return (
     <div>
-      {/* タニタ連携セクション */}
-      <div className="tanita-section">
-        {tanitaConnected ? (
+      {/* 同期ボタン（連携済みのみ表示） */}
+      {tanitaConnected && (
+        <div className="tanita-section">
           <div className="tanita-card tanita-card--connected">
             <span className="material-symbols-outlined tanita-icon">monitor_weight</span>
-            <div className="tanita-info">
-              <span className="tanita-label">HealthPlanet 連携中</span>
-            </div>
+            <span className="tanita-label">HealthPlanet</span>
             <button className="tanita-sync-btn" onClick={handleTanitaSync} disabled={syncing}>
               {syncing
                 ? <span className="material-symbols-outlined tanita-spin">sync</span>
@@ -137,14 +132,9 @@ function WeightPage({ user }) {
               {syncing ? '同期中' : '同期'}
             </button>
           </div>
-        ) : (
-          <button className="tanita-connect-btn" onClick={handleTanitaConnect}>
-            <span className="material-symbols-outlined">monitor_weight</span>
-            タニタ HealthPlanet と連携
-          </button>
-        )}
-        {syncMsg && <p className="sync-msg">{syncMsg}</p>}
-      </div>
+          {syncMsg && <p className="sync-msg">{syncMsg}</p>}
+        </div>
+      )}
 
       {/* 手動入力フォーム */}
       {!showForm && (

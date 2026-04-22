@@ -642,6 +642,16 @@ tr.date td:last-child {
   background-clip: text;
 }
 
+.setting-section-label {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: var(--muted);
+  padding: 0 4px 8px;
+  margin-top: 8px;
+}
+
 .setting-card {
   background: var(--surface);
   border: 1px solid var(--border);
@@ -650,6 +660,66 @@ tr.date td:last-child {
   margin-bottom: 10px;
   overflow: hidden;
 }
+
+.integration-card {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 16px;
+}
+
+.integration-icon {
+  font-size: 22px;
+  color: var(--weight);
+}
+
+.integration-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.integration-name {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.integration-status {
+  font-size: 12px;
+  font-weight: 500;
+}
+.integration-status.connected    { color: var(--weight); }
+.integration-status.disconnected { color: var(--muted); }
+
+.integration-connect-btn {
+  padding: 6px 16px;
+  background: linear-gradient(135deg, #18ffff, #6366f1);
+  color: #0d0a1e;
+  font-size: 13px;
+  font-weight: 700;
+  border: none;
+  border-radius: var(--r-full);
+  cursor: pointer;
+  font-family: inherit;
+  transition: opacity 0.2s;
+}
+.integration-connect-btn:hover { opacity: 0.85; }
+
+.integration-disconnect-btn {
+  padding: 6px 14px;
+  background: var(--red-bg);
+  color: var(--red);
+  font-size: 13px;
+  font-weight: 700;
+  border: 1px solid rgba(255,64,129,0.35);
+  border-radius: var(--r-full);
+  cursor: pointer;
+  font-family: inherit;
+  transition: background 0.2s;
+}
+.integration-disconnect-btn:hover { background: rgba(255,64,129,0.28); }
 
 .setting-btn {
   width: 100%;
