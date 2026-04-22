@@ -1,7 +1,7 @@
 import { collection, getDocs, doc, getDoc } from "firebase/firestore";
 import { db } from "../firebase"
 import { useEffect, useState } from "react";
-import { LineChart, Line, XAxis, YAxis, ResponsiveContainer, Tooltip } from "recharts";
+import { LineChart, Line, XAxis, YAxis, ResponsiveContainer, Tooltip, Legend } from "recharts";
 
 const NEXT_URL = "https://training-api-kohl.vercel.app";
 
@@ -190,10 +190,34 @@ function WeightPage({ user }) {
               <YAxis domain={['dataMin - 5', 'dataMax + 5']} />
               <Tooltip
                 contentStyle={{ background: "#17122e", border: "none", borderRadius: "8px", color: "white" }}
-                formatter={(value) => `${value} kg`} />
-              <Line dataKey="bw" stroke="#18ffff" strokeWidth={2} dot={false} />
+                formatter={(value, _name, props) => [
+                  `${value} kg`,
+                  props.payload.source === 'tanita' ? 'タニタ' : '手動'
+                ]} />
+              <Line
+                dataKey="bw"
+                stroke="#18ffff"
+                strokeWidth={2}
+                dot={(props) => {
+                  const { cx, cy, payload } = props;
+                  const isTanita = payload.source === 'tanita';
+                  return (
+                    <circle
+                      key={`dot-${cx}-${cy}`}
+                      cx={cx} cy={cy} r={4}
+                      fill={isTanita ? '#18ffff' : '#00e676'}
+                      stroke={isTanita ? 'rgba(24,255,255,0.3)' : 'rgba(0,230,118,0.3)'}
+                      strokeWidth={2}
+                    />
+                  );
+                }}
+              />
             </LineChart>
           </ResponsiveContainer>
+          <div className="graph-legend">
+            <span className="legend-tanita"><span className="legend-dot" />タニタ</span>
+            <span className="legend-manual"><span className="legend-dot" />手動</span>
+          </div>
         </div>
       </div>
 
@@ -211,7 +235,13 @@ function WeightPage({ user }) {
                   {displayed.map(day => (
                     <tr key={day.id} className="date">
                       <td>{day.date}</td>
-                      <td>{day.bw} kg</td>
+                      <td>
+                        {day.bw} kg
+                        {day.source === 'tanita'
+                          ? <span className="source-badge source-badge--tanita">タニタ</span>
+                          : <span className="source-badge source-badge--manual">手動</span>
+                        }
+                      </td>
                       <td>
                         <button onClick={() => handleDelete(day.id)}>
                           <span className="material-symbols-outlined delete small-btn">delete</span>
