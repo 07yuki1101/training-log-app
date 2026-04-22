@@ -8,7 +8,7 @@ const NEXT_URL = "https://training-api-kohl.vercel.app";
 function WeightPage({ user }) {
   const [weight, setWeight] = useState([]);
   const [showForm, setShowForm] = useState(false);
-  const [newWeight, setNewWeight] = useState({ date: '', bw: '' });
+  const [newWeight, setNewWeight] = useState({ date: '', bw: '', bf: '' });
   const [range, setRange] = useState(30);
   const [showAllLog, setShowAllLog] = useState(false);
 
@@ -55,23 +55,6 @@ function WeightPage({ user }) {
     };
     checkToken();
   }, [user]);
-
-  const buildHpUrl = async () => {
-    const tokenSnap = await getDoc(doc(db, 'users', user.uid, 'tokens', 'tanita'));
-    if (!tokenSnap.exists()) return null;
-    const { accessToken } = tokenSnap.data();
-    const to = new Date();
-    const from = new Date(to);
-    from.setFullYear(from.getFullYear() - 1);
-    const fmt = (d) =>
-      `${d.getFullYear()}${String(d.getMonth() + 1).padStart(2, "0")}${String(d.getDate()).padStart(2, "0")}0000`;
-    return `https://www.healthplanet.jp/status/innerscan.json?access_token=${accessToken}&date=1&from=${fmt(from)}&to=${fmt(to)}&tag=6021,6022`;
-  };
-
-  const handleTokenTest = async () => {
-    const url = await buildHpUrl();
-    if (url) window.open(url, '_blank');
-  };
 
   const handleTanitaSync = async () => {
     setSyncing(true);
@@ -155,16 +138,17 @@ function WeightPage({ user }) {
   const handleAddWeight = async () => {
     if (!newWeight.bw) { alert('体重を入力してください'); return; }
     try {
-      const res = await fetch(`${NEXT_URL}/api/weight`, {
-        method: 'POST',
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ userId: user.uid, weight: Number(newWeight.bw), date: newWeight.date }),
-      });
-      await res.json();
-      const resGet = await fetch(`${NEXT_URL}/api/weight?userId=${user.uid}`);
-      const data = await resGet.json();
-      setWeight(data);
+      const entry = {
+        date: newWeight.date,
+        bw: Number(newWeight.bw),
+        source: 'manual',
+        syncedAt: new Date(),
+      };
+      if (newWeight.bf !== '') entry.bf = Number(newWeight.bf);
+      await addDoc(collection(db, 'users', user.uid, 'weights'), entry);
+      await fetchWeight();
       setShowForm(false);
+      setNewWeight({ date: '', bw: '', bf: '' });
     } catch (error) {
       console.error('保存エラー:', error);
     }
@@ -208,9 +192,6 @@ function WeightPage({ user }) {
                 : <span className="material-symbols-outlined">sync</span>}
               {syncing ? '同期中' : '同期'}
             </button>
-            <button className="tanita-test-btn" onClick={handleTokenTest} title="トークンテスト">
-              <span className="material-symbols-outlined">open_in_new</span>
-            </button>
           </div>
           {syncMsg && <p className="sync-msg">{syncMsg}</p>}
         </div>
@@ -234,8 +215,12 @@ function WeightPage({ user }) {
             placeholder="体重 (kg)"
             value={newWeight.bw}
             onChange={(e) => setNewWeight({ ...newWeight, bw: e.target.value })} />
+          <input type="number"
+            placeholder="体脂肪率 (%) 任意"
+            value={newWeight.bf}
+            onChange={(e) => setNewWeight({ ...newWeight, bf: e.target.value })} />
           <button className="add-btn" onClick={handleAddWeight}>追加</button>
-          <button className="cancel-btn" onClick={() => { setShowForm(false); setNewWeight({ date: '', bw: '' }); }}>
+          <button className="cancel-btn" onClick={() => { setShowForm(false); setNewWeight({ date: '', bw: '', bf: '' }); }}>
             <span className="material-symbols-outlined cancel">close_small</span>
           </button>
         </div>
@@ -281,20 +266,7 @@ function WeightPage({ user }) {
                 stroke="#18ffff"
                 strokeWidth={2}
                 connectNulls
-                dot={(props) => {
-                  const { cx, cy, payload } = props;
-                  if (payload.bw == null) return null;
-                  const isTanita = payload.source === 'tanita';
-                  return (
-                    <circle
-                      key={`bw-${cx}-${cy}`}
-                      cx={cx} cy={cy} r={4}
-                      fill={isTanita ? '#18ffff' : '#00e676'}
-                      stroke={isTanita ? 'rgba(24,255,255,0.3)' : 'rgba(0,230,118,0.3)'}
-                      strokeWidth={2}
-                    />
-                  );
-                }}
+                dot={{ r: 4, fill: '#18ffff', stroke: 'rgba(24,255,255,0.3)', strokeWidth: 2 }}
               />
               <Line
                 yAxisId="bf"
@@ -322,7 +294,6 @@ function WeightPage({ user }) {
           <div className="graph-legend">
             <span className="legend-tanita"><span className="legend-dot" />体重 (kg)</span>
             <span className="legend-bf"><span className="legend-dot legend-dot--bf" />体脂肪率 (%)</span>
-            <span className="legend-manual"><span className="legend-dot legend-dot--manual" />手動</span>
           </div>
         </div>
       </div>
@@ -341,13 +312,7 @@ function WeightPage({ user }) {
                   {displayed.map(day => (
                     <tr key={day.id} className="date">
                       <td>{day.date}</td>
-                      <td>
-                        {day.bw} kg
-                        {day.source === 'tanita'
-                          ? <span className="source-badge source-badge--tanita">タニタ</span>
-                          : <span className="source-badge source-badge--manual">手動</span>
-                        }
-                      </td>
+                      <td>{day.bw} kg</td>
                       <td className="bf-cell">
                         {day.bf != null ? `${day.bf} %` : '—'}
                       </td>
