@@ -3,7 +3,6 @@ import { db } from "../firebase"
 import { useEffect, useState } from "react";
 import { LineChart, Line, XAxis, YAxis, ResponsiveContainer, Tooltip } from "recharts";
 
-const FUNCTIONS_BASE = "https://asia-northeast1-training-log-app-d219c.cloudfunctions.net";
 const NEXT_URL = "https://training-api-kohl.vercel.app";
 
 function WeightPage({ user }) {
@@ -56,14 +55,14 @@ function WeightPage({ user }) {
   }, [user]);
 
   const handleTanitaConnect = () => {
-    window.location.href = `${FUNCTIONS_BASE}/tanitaConnect?uid=${user.uid}`;
+    window.location.href = `${NEXT_URL}/api/tanita/connect?uid=${user.uid}`;
   };
 
   const handleTanitaSync = async () => {
     setSyncing(true);
     setSyncMsg('');
     try {
-      const res = await fetch(`${FUNCTIONS_BASE}/tanitaSync?uid=${user.uid}`);
+      const res = await fetch(`${NEXT_URL}/api/tanita/sync?uid=${user.uid}`);
       const data = await res.json();
       if (data.synced !== undefined) {
         setSyncMsg(data.synced > 0 ? `${data.synced}件のデータを取得しました` : '新しいデータはありません');
