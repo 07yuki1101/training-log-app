@@ -46,11 +46,16 @@ function App() {
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
       setUser(currentUser);
       if (currentUser) {
-        fetchRecords(currentUser.uid)
+        fetchRecords(currentUser.uid);
         fetchExercises(currentUser.uid);
+        // タニタOAuthコールバック後はWeightページへ自動遷移
+        const params = new URLSearchParams(window.location.search);
+        if (params.get('tanita')) {
+          setPage('weight');
+        }
       }
     });
-    return () => unsubscribe()
+    return () => unsubscribe();
   }, []);
 
 

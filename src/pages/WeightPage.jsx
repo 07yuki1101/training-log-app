@@ -38,7 +38,8 @@ function WeightPage({ user }) {
       setSyncMsg('HealthPlanet の連携が完了しました');
       window.history.replaceState({}, '', window.location.pathname);
     } else if (params.get('tanita') === 'error') {
-      setSyncMsg('連携に失敗しました。再度お試しください。');
+      const reason = params.get('reason');
+      setSyncMsg(`連携に失敗しました。${reason ? `(${decodeURIComponent(reason)})` : '再度お試しください。'}`);
       window.history.replaceState({}, '', window.location.pathname);
     }
 
