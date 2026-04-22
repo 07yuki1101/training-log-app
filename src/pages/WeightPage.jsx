@@ -1,4 +1,4 @@
-import { collection, getDocs, doc, getDoc } from "firebase/firestore";
+import { collection, getDocs, addDoc, doc, getDoc } from "firebase/firestore";
 import { db } from "../firebase"
 import { useEffect, useState } from "react";
 import { LineChart, Line, XAxis, YAxis, ResponsiveContainer, Tooltip, Legend } from "recharts";
@@ -60,6 +60,52 @@ function WeightPage({ user }) {
     setSyncing(true);
     setSyncMsg('');
     try {
+      // ─── まずブラウザから直接 HealthPlanet API を呼ぶ（サーバーIPブロック回避）───
+      let clientSynced = null;
+      try {
+        const tokenSnap = await getDoc(doc(db, 'users', user.uid, 'tokens', 'tanita'));
+        if (tokenSnap.exists()) {
+          const { accessToken } = tokenSnap.data();
+          const to = new Date();
+          const from = new Date(to);
+          from.setFullYear(from.getFullYear() - 1);
+          const fmt = (d) =>
+            `${d.getFullYear()}${String(d.getMonth() + 1).padStart(2, "0")}${String(d.getDate()).padStart(2, "0")}0000`;
+          const apiUrl = `https://www.healthplanet.jp/status/innerscan.json?access_token=${accessToken}&date=1&from=${fmt(from)}&to=${fmt(to)}&tag=6021,6022`;
+          const hpRes = await fetch(apiUrl);
+          const hpText = await hpRes.text();
+          console.log('[client] HP status:', hpRes.status, 'body:', hpText.slice(0, 200));
+          if (!hpText.trimStart().startsWith('<')) {
+            const json = JSON.parse(hpText);
+            const items = json.data ?? [];
+            const existingSnap = await getDocs(collection(db, 'users', user.uid, 'weights'));
+            const existingDates = new Set(existingSnap.docs.map(d => d.data().date));
+            let count = 0;
+            for (const item of items) {
+              const raw = item.date;
+              const date = `${raw.slice(0, 4)}-${raw.slice(4, 6)}-${raw.slice(6, 8)}`;
+              const bw = parseFloat(item.keydata);
+              if (!existingDates.has(date) && !isNaN(bw)) {
+                await addDoc(collection(db, 'users', user.uid, 'weights'), {
+                  date, bw, source: 'tanita', syncedAt: new Date(),
+                });
+                count++;
+              }
+            }
+            clientSynced = count;
+          }
+        }
+      } catch (clientErr) {
+        console.log('[client] direct API failed (CORS or other):', clientErr.message);
+      }
+
+      if (clientSynced !== null) {
+        setSyncMsg(clientSynced > 0 ? `${clientSynced}件のデータを取得しました` : '新しいデータはありません');
+        if (clientSynced > 0) await fetchWeight();
+        return;
+      }
+
+      // ─── フォールバック: Vercel サーバー経由 ───
       const res = await fetch(`${NEXT_URL}/api/tanita/sync?uid=${user.uid}`);
       const data = await res.json();
       if (data.synced !== undefined) {
