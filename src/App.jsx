@@ -1,7 +1,8 @@
 import { useState, useEffect } from "react"
 import { onAuthStateChanged, signOut } from "firebase/auth";
+import { FirebaseAuthentication } from "@capacitor-firebase/authentication";
 import { auth } from "./firebase";
-import { collection, getDocs, query,orderBy } from "firebase/firestore";
+import { collection, getDocs, query, orderBy, doc, setDoc } from "firebase/firestore";
 import { db } from "./firebase";
 import CalendarPage from "./pages/CalendarPage";
 import SettingPage from "./pages/SettingPage";
@@ -9,6 +10,7 @@ import Tabs from "./components/Tabs";
 import TrainingPage from "./pages/TrainingPage"
 import MealPage from "./pages/MealPage"
 import WeightPage from "./pages/WeightPage";
+import FriendsPage from "./pages/FriendsPage";
 import Login from "./components/Login"
 function App() {
   const [page, setPage] = useState(null);
@@ -46,6 +48,11 @@ function App() {
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
       setUser(currentUser);
       if (currentUser) {
+        setDoc(doc(db, 'userProfiles', currentUser.uid), {
+          displayName: currentUser.displayName || '',
+          email: currentUser.email,
+          photoUrl: currentUser.photoURL || ''
+        }, { merge: true });
         fetchRecords(currentUser.uid);
         fetchExercises(currentUser.uid);
         // タニタOAuthコールバック後はWeightページへ自動遷移
@@ -65,6 +72,7 @@ function App() {
 
   const handleLogout = async () => {
     try {
+      await FirebaseAuthentication.signOut();
       await signOut(auth);
     } catch (error) {
       console.error('ログアウト失敗', error);
@@ -107,6 +115,10 @@ function App() {
 
       {page === 'weight' &&
         <WeightPage
+          user={user} />}
+
+      {page === 'friends' &&
+        <FriendsPage
           user={user} />}
 
       {page === 'setting' &&
