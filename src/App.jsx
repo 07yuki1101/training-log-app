@@ -2,7 +2,7 @@ import { useState, useEffect } from "react"
 import { onAuthStateChanged, signOut } from "firebase/auth";
 import { FirebaseAuthentication } from "@capacitor-firebase/authentication";
 import { auth } from "./firebase";
-import { collection, getDocs, query, orderBy, doc, setDoc } from "firebase/firestore";
+import { collection, getDocs, query, orderBy, doc, setDoc, writeBatch } from "firebase/firestore";
 import { db } from "./firebase";
 import CalendarPage from "./pages/CalendarPage";
 import SettingPage from "./pages/SettingPage";
@@ -32,14 +32,55 @@ function App() {
       setRecords(data);
     }
   const fetchExercises = async (uid) => {
-    const snap = await getDocs(
-      collection(db, 'users', uid, 'exercises'));
+    const snap = await getDocs(collection(db, 'users', uid, 'exercises'));
+    const existing = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+    await seedDefaultExercises(uid, existing);
+    const snap2 = await getDocs(collection(db, 'users', uid, 'exercises'));
+    setExercises(snap2.docs.map(d => ({ id: d.id, ...d.data() })));
+  };
 
-    const data = snap.docs.map(doc => ({
-      id: doc.id,
-      ...doc.data()
-    }));
-    setExercises(data);
+  const seedDefaultExercises = async (uid, existing) => {
+    const existingNames = new Set(existing.map(e => e.name));
+    const defaults = [
+      { name: 'ベンチプレス',           bodyPart: '胸' },
+      { name: 'インクラインベンチプレス', bodyPart: '胸' },
+      { name: 'ダンベルフライ',          bodyPart: '胸' },
+      { name: 'ディップス',             bodyPart: '胸' },
+      { name: 'チェストプレス',          bodyPart: '胸' },
+      { name: 'デッドリフト',            bodyPart: '背中' },
+      { name: '懸垂',                   bodyPart: '背中' },
+      { name: 'ラットプルダウン',        bodyPart: '背中' },
+      { name: 'ベントオーバーロウ',      bodyPart: '背中' },
+      { name: 'シーテッドロウ',          bodyPart: '背中' },
+      { name: 'ショルダープレス',        bodyPart: '肩' },
+      { name: 'サイドレイズ',            bodyPart: '肩' },
+      { name: 'フロントレイズ',          bodyPart: '肩' },
+      { name: 'フェイスプル',            bodyPart: '肩' },
+      { name: 'アーノルドプレス',        bodyPart: '肩' },
+      { name: 'バーベルカール',          bodyPart: '腕' },
+      { name: 'ダンベルカール',          bodyPart: '腕' },
+      { name: 'ハンマーカール',          bodyPart: '腕' },
+      { name: 'トライセプスプッシュダウン', bodyPart: '腕' },
+      { name: 'スカルクラッシャー',      bodyPart: '腕' },
+      { name: 'スクワット',              bodyPart: '脚' },
+      { name: 'レッグプレス',            bodyPart: '脚' },
+      { name: 'ルーマニアンデッドリフト', bodyPart: '脚' },
+      { name: 'レッグカール',            bodyPart: '脚' },
+      { name: 'カーフレイズ',            bodyPart: '脚' },
+      { name: 'クランチ',               bodyPart: '腹筋' },
+      { name: 'レッグレイズ',            bodyPart: '腹筋' },
+      { name: 'プランク',               bodyPart: '腹筋' },
+      { name: 'ロシアンツイスト',        bodyPart: '腹筋' },
+      { name: 'アブドミナルクランチ',    bodyPart: '腹筋' },
+    ];
+    const toAdd = defaults.filter(ex => !existingNames.has(ex.name));
+    if (toAdd.length === 0) return;
+    const batch = writeBatch(db);
+    toAdd.forEach(ex => {
+      const ref = doc(collection(db, 'users', uid, 'exercises'));
+      batch.set(ref, ex);
+    });
+    await batch.commit();
   };
 
 
