@@ -127,14 +127,15 @@ function App() {
       <header>
         <h1 onClick={() => setPage(null)}>Training Log</h1>
         <div className="head-btn">
-          <button onClick={handleLogout}>
-            <span className="material-symbols-outlined small-btn">
-              logout
-            </span>
+          <button onClick={() => setPage(null)}>
+            <span className="material-symbols-outlined small-btn">home</span>
           </button>
-          <button onClick={() => setPage('setting')}><span className="material-symbols-outlined small-btn">
-            settings
-          </span></button>
+          <button onClick={() => setPage('setting')}>
+            <span className="material-symbols-outlined small-btn">settings</span>
+          </button>
+          <button onClick={handleLogout}>
+            <span className="material-symbols-outlined small-btn">logout</span>
+          </button>
         </div>
 
       </header>
@@ -145,10 +146,11 @@ function App() {
       {page === 'training' &&
         <TrainingPage
           user={user}
-          exercises={exercises} 
+          exercises={exercises}
           records={records}
           setRecords={setRecords}
-          fetchRecords={fetchRecords}/>}
+          fetchRecords={fetchRecords}
+          setPage={setPage} />}
 
       {page === 'meal' &&
         <MealPage

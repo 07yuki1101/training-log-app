@@ -871,6 +871,51 @@ tr.date td:last-child {
   overflow: hidden;
 }
 
+.uid-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r);
+  padding: 14px 16px;
+  margin-bottom: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.uid-hint {
+  font-size: 12px;
+  color: var(--muted);
+}
+.uid-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: var(--r-sm);
+  padding: 10px 12px;
+}
+.uid-text {
+  flex: 1;
+  font-size: 12px;
+  font-family: monospace;
+  color: var(--text);
+  word-break: break-all;
+  line-height: 1.5;
+}
+.uid-copy-btn {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: var(--r-sm);
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--muted2);
+}
+.uid-copy-btn:active { background: var(--surface2); }
+
 .integration-card {
   display: flex;
   align-items: center;
@@ -1030,6 +1075,24 @@ tr.date td:last-child {
 }
 .add-exercise-form button:active { opacity: 0.75; }
 .add-exercise-form button:disabled { opacity: 0.4; }
+
+.add-exercise-link {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 7px 14px;
+  background: rgba(255,112,67,0.12);
+  border: 1px solid rgba(255,112,67,0.3);
+  border-radius: var(--r-full);
+  color: var(--training);
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  align-self: flex-start;
+  transition: background 0.15s;
+}
+.add-exercise-link .material-symbols-outlined { font-size: 16px; }
+.add-exercise-link:active { background: rgba(255,112,67,0.22); }
 
 /* 種目一覧 グループラベル */
 .exercise-group-label {

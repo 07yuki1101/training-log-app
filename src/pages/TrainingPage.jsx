@@ -4,7 +4,7 @@ import { db } from "../firebase";
 
 const BODY_PART_ORDER = ['胸', '背中', '肩', '腕', '脚', '腹筋', 'その他'];
 
-function TrainingPage({ user, exercises, records, setRecords, fetchRecords }) {
+function TrainingPage({ user, exercises, records, setRecords, fetchRecords, setPage }) {
 
   const [showForm, setShowForm] = useState(false);
   const [newRecords, setNewRecords] = useState({
@@ -197,6 +197,14 @@ function TrainingPage({ user, exercises, records, setRecords, fetchRecords }) {
               ));
             })()}
           </select>
+          <button
+            type="button"
+            className="add-exercise-link"
+            onClick={() => setPage('setting')}
+          >
+            <span className="material-symbols-outlined">add_circle</span>
+            種目を追加
+          </button>
           {previous && (
             <div className="previous-data">
               前回

@@ -136,9 +136,25 @@ function SettingPage({ user, exercises, setExercises }) {
     );
   };
 
+  const copyUserId = () => {
+    navigator.clipboard.writeText(user.uid);
+  };
+
   return (
     <div className="setting">
       <h2 className="setting-title">設定</h2>
+
+      {/* ユーザーID */}
+      <div className="setting-section-label">ユーザーID</div>
+      <div className="uid-card">
+        <p className="uid-hint">友達追加時にこのIDを相手に共有してください</p>
+        <div className="uid-row">
+          <span className="uid-text">{user.uid}</span>
+          <button className="uid-copy-btn" onClick={copyUserId}>
+            <span className="material-symbols-outlined small-btn">content_copy</span>
+          </button>
+        </div>
+      </div>
 
       {/* 外部連携 */}
       <div className="setting-section-label">外部連携</div>
