@@ -124,6 +124,8 @@ h1 {
 }
 .login-btn:hover  { background: var(--surface2); }
 .login-btn:active { transform: scale(0.97); }
+.apple-btn { background: #fff; color: #000; border-color: #fff; margin-top: 12px; }
+.apple-btn:hover { background: #f0f0f0; }
 
 /* ─── Form ─── */
 .form-switch {
