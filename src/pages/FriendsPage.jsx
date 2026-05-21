@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import {
-  collection, getDocs, doc, setDoc, deleteDoc,
+  collection, getDocs, doc, setDoc, deleteDoc, getDoc,
   query, orderBy, limit, where, serverTimestamp
 } from "firebase/firestore";
 import { db } from "../firebase";
@@ -71,16 +71,24 @@ function FriendsPage({ user }) {
   };
 
   const sendRequest = async () => {
-    const email = emailInput.trim().toLowerCase();
-    if (!email) return;
+    const input = emailInput.trim();
+    if (!input) return;
     setLoading(true);
     setMsg('');
     try {
-      const q = query(collection(db, 'userProfiles'), where('email', '==', email));
-      const snap = await getDocs(q);
-      if (snap.empty) { setMsg('ユーザーが見つかりません'); setLoading(false); return; }
-      const targetUid = snap.docs[0].id;
-      const targetData = snap.docs[0].data();
+      let targetUid, targetData;
+      if (input.includes('@')) {
+        const q = query(collection(db, 'userProfiles'), where('email', '==', input.toLowerCase()));
+        const snap = await getDocs(q);
+        if (snap.empty) { setMsg('ユーザーが見つかりません'); setLoading(false); return; }
+        targetUid = snap.docs[0].id;
+        targetData = snap.docs[0].data();
+      } else {
+        const snap = await getDoc(doc(db, 'userProfiles', input));
+        if (!snap.exists()) { setMsg('ユーザーが見つかりません'); setLoading(false); return; }
+        targetUid = snap.id;
+        targetData = snap.data();
+      }
       if (targetUid === user.uid) { setMsg('自分自身は追加できません'); setLoading(false); return; }
       if (friends.some(f => f.uid === targetUid)) { setMsg('すでに友達です'); setLoading(false); return; }
 
@@ -213,7 +221,7 @@ function FriendsPage({ user }) {
           <div className="friend-add-form">
             <input
               type="email"
-              placeholder="メールアドレスで検索"
+              placeholder="メールアドレスまたはユーザーIDで検索"
               value={emailInput}
               onChange={e => setEmailInput(e.target.value)}
               onKeyDown={e => e.key === 'Enter' && sendRequest()}
