@@ -916,6 +916,49 @@ tr.date td:last-child {
 }
 .uid-copy-btn:active { background: var(--surface2); }
 
+.danger-zone-card {
+  background: rgba(255,64,129,0.07);
+  border: 1px solid rgba(255,64,129,0.25);
+  border-radius: var(--r);
+  padding: 14px 16px;
+  margin-bottom: 10px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.danger-zone-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.danger-zone-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--red);
+}
+.danger-zone-desc {
+  font-size: 12px;
+  color: var(--muted);
+}
+.delete-account-btn {
+  flex-shrink: 0;
+  padding: 7px 16px;
+  border-radius: var(--r-full);
+  background: rgba(255,64,129,0.15);
+  border: 1px solid rgba(255,64,129,0.4);
+  color: var(--red);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+}
+.delete-account-btn:active { background: rgba(255,64,129,0.28); }
+.delete-msg {
+  font-size: 13px;
+  color: var(--red);
+  padding: 0 4px 8px;
+}
+
 .integration-card {
   display: flex;
   align-items: center;

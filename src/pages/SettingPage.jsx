@@ -1,6 +1,8 @@
 import { useState, useEffect } from "react";
-import { collection, getDocs, addDoc, deleteDoc, updateDoc, doc, getDoc } from "firebase/firestore";
-import { db } from "../firebase";
+import { collection, getDocs, addDoc, deleteDoc, updateDoc, doc, getDoc, writeBatch } from "firebase/firestore";
+import { db, auth } from "../firebase";
+import { deleteUser } from "firebase/auth";
+import { FirebaseAuthentication } from "@capacitor-firebase/authentication";
 
 const NEXT_URL = "https://training-api-kohl.vercel.app";
 
@@ -140,6 +142,45 @@ function SettingPage({ user, exercises, setExercises }) {
     navigator.clipboard.writeText(user.uid);
   };
 
+  const [deleteMsg, setDeleteMsg] = useState('');
+
+  const handleDeleteAccount = async () => {
+    const ok = window.confirm(
+      'アカウントを削除しますか？\nトレーニング記録・種目・友達情報など、すべてのデータが完全に削除されます。この操作は取り消せません。'
+    );
+    if (!ok) return;
+    setDeleteMsg('削除中...');
+    try {
+      const uid = user.uid;
+      const colPaths = [
+        collection(db, 'users', uid, 'records'),
+        collection(db, 'users', uid, 'exercises'),
+        collection(db, 'users', uid, 'tokens'),
+        collection(db, 'friends', uid, 'list'),
+        collection(db, 'friendRequests', uid, 'incoming'),
+      ];
+      for (const col of colPaths) {
+        const snap = await getDocs(col);
+        const batch = writeBatch(db);
+        snap.docs.forEach(d => batch.delete(d.ref));
+        if (snap.docs.length > 0) await batch.commit();
+      }
+      const batch = writeBatch(db);
+      batch.delete(doc(db, 'userProfiles', uid));
+      await batch.commit();
+
+      await deleteUser(auth.currentUser);
+      await FirebaseAuthentication.signOut();
+    } catch (e) {
+      if (e.code === 'auth/requires-recent-login') {
+        setDeleteMsg('セキュリティのため、一度ログアウトして再ログイン後に削除してください。');
+      } else {
+        console.error(e);
+        setDeleteMsg('エラーが発生しました。再度お試しください。');
+      }
+    }
+  };
+
   return (
     <div className="setting">
       <h2 className="setting-title">設定</h2>
@@ -215,6 +256,18 @@ function SettingPage({ user, exercises, setExercises }) {
           ))}
         </div>
       )}
+      {/* アカウント削除 */}
+      <div className="setting-section-label" style={{ marginTop: 24 }}>アカウント</div>
+      <div className="danger-zone-card">
+        <div className="danger-zone-info">
+          <span className="danger-zone-title">アカウントを削除</span>
+          <span className="danger-zone-desc">すべてのデータが完全に削除されます</span>
+        </div>
+        <button className="delete-account-btn" onClick={handleDeleteAccount}>
+          削除
+        </button>
+      </div>
+      {deleteMsg && <p className="delete-msg">{deleteMsg}</p>}
     </div>
   );
 }
