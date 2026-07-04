@@ -8,6 +8,7 @@ import CalendarPage from "./pages/CalendarPage";
 import SettingPage from "./pages/SettingPage";
 import Tabs from "./components/Tabs";
 import TrainingPage from "./pages/TrainingPage"
+import RunPage from "./pages/RunPage"
 import MealPage from "./pages/MealPage"
 import WeightPage from "./pages/WeightPage";
 import FriendsPage from "./pages/FriendsPage";
@@ -17,6 +18,7 @@ function App() {
   const [user, setUser] = useState(null);
   const [records, setRecords] = useState([])
   const [exercises, setExercises] = useState([])
+  const [runRecords, setRunRecords] = useState([])
 
    const fetchRecords = async (uid) => {
       const q = query(
@@ -31,6 +33,11 @@ function App() {
       }))
       setRecords(data);
     }
+  const fetchRunRecords = async (uid) => {
+    const snap = await getDocs(query(collection(db, 'users', uid, 'runs'), orderBy('createdAt', 'asc')));
+    setRunRecords(snap.docs.map(d => ({ id: d.id, ...d.data() })));
+  };
+
   const fetchExercises = async (uid) => {
     const snap = await getDocs(collection(db, 'users', uid, 'exercises'));
     const existing = snap.docs.map(d => ({ id: d.id, ...d.data() }));
@@ -95,6 +102,7 @@ function App() {
           photoUrl: currentUser.photoURL || ''
         }, { merge: true });
         fetchRecords(currentUser.uid);
+        fetchRunRecords(currentUser.uid);
         fetchExercises(currentUser.uid);
         // タニタOAuthコールバック後はWeightページへ自動遷移
         const params = new URLSearchParams(window.location.search);
@@ -152,6 +160,12 @@ function App() {
           fetchRecords={fetchRecords}
           setPage={setPage} />}
 
+      {page === 'run' &&
+        <RunPage
+          user={user}
+          runRecords={runRecords}
+          fetchRunRecords={fetchRunRecords} />}
+
       {page === 'meal' &&
         <MealPage
           user={user} />}
@@ -170,8 +184,9 @@ function App() {
           exercises={exercises}
           setExercises={setExercises} />}
       {!page &&
-        <CalendarPage 
-        records={records}/>
+        <CalendarPage
+          records={records}
+          runRecords={runRecords} />
       }
 
 

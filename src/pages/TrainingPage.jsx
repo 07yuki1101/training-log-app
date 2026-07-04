@@ -8,7 +8,7 @@ function TrainingPage({ user, exercises, records, setRecords, fetchRecords, setP
 
   const [showForm, setShowForm] = useState(false);
   const [newRecords, setNewRecords] = useState({
-    date: '', exercise: '', sets: [{ weight: '', reps: '' }]
+    date: '', exercise: '', sets: [{ weight: '', reps: '' }], comment: ''
   });
 
   const [editRecord, setEditRecord] = useState(null);
@@ -46,38 +46,30 @@ function TrainingPage({ user, exercises, records, setRecords, fetchRecords, setP
       return;
     }
     try {
+      const recordData = {
+        date: newRecords.date,
+        exercise: newRecords.exercise,
+        sets: newRecords.sets.map(set => ({
+          weight: Number(set.weight),
+          reps: Number(set.reps)
+        })),
+        comment: newRecords.comment || '',
+        updatedAt: serverTimestamp()
+      };
       if (editRecord) {
         await updateDoc(
           doc(db, 'users', user.uid, 'records', editRecord.id),
-          {
-            date: newRecords.date,
-            exercise: newRecords.exercise,
-            sets: newRecords.sets.map(set => ({
-              weight: Number(set.weight),
-              reps: Number(set.reps)
-            })),
-            createdAt: serverTimestamp(),
-            updatedAt: serverTimestamp()
-          }
+          recordData
         );
       } else {
         await addDoc(
           collection(db, 'users', user.uid, 'records'),
-          {
-            date: newRecords.date,
-            exercise: newRecords.exercise,
-            sets: newRecords.sets.map(set => ({
-              weight: Number(set.weight),
-              reps: Number(set.reps)
-            })),
-            createdAt: serverTimestamp(),
-            updatedAt: serverTimestamp()
-          }
+          { ...recordData, createdAt: serverTimestamp() }
         );
       }
 
       await fetchRecords(user.uid);
-      setNewRecords({ date: '', exercise: '', sets: [{ weight: '', reps: '' }] });
+      setNewRecords({ date: '', exercise: '', sets: [{ weight: '', reps: '' }], comment: '' });
       setEditRecord(null)
       setShowForm(false);
       console.log('✅ handleAddRecord END');
@@ -213,6 +205,9 @@ function TrainingPage({ user, exercises, records, setRecords, fetchRecords, setP
                   {set.weight} kg × {set.reps}
                 </div>
               ))}
+              {previous.comment && (
+                <div className="previous-comment">{previous.comment}</div>
+              )}
             </div>
           )}
           {newRecords.sets.map((set, index) => (
@@ -246,12 +241,18 @@ function TrainingPage({ user, exercises, records, setRecords, fetchRecords, setP
             <button className="set-btn" onClick={handleeAddSet}><span className="material-symbols-outlined set-add">
               add
             </span></button>
-
           </div>
+
+          <textarea
+            placeholder="コメント（任意）"
+            value={newRecords.comment}
+            onChange={(e) => setNewRecords({ ...newRecords, comment: e.target.value })}
+            rows={2}
+          />
 
           <button className="add-btn" onClick={handleAddRecord}>{editRecord ? '更新' : '追加'}</button>
 
-          <button className="cancel-btn" onClick={() => { setShowForm(false); setNewRecords({ date: '', exercise: '', sets: [{ weight: '', reps: '' }] }) }}><span className="material-symbols-outlined cancel">
+          <button className="cancel-btn" onClick={() => { setShowForm(false); setNewRecords({ date: '', exercise: '', sets: [{ weight: '', reps: '' }], comment: '' }) }}><span className="material-symbols-outlined cancel">
             close_small
           </span></button>
         </div>
@@ -285,7 +286,7 @@ function TrainingPage({ user, exercises, records, setRecords, fetchRecords, setP
                           <div className="item-name">
                             <div className="train-name">{item.exercise}</div>
                             <div className="table-action">
-                              <button onClick={() => { setShowForm(true); setEditRecord(item); setNewRecords({ date: day.date, exercise: item.exercise, sets: item.sets }) }}>
+                              <button onClick={() => { setShowForm(true); setEditRecord(item); setNewRecords({ date: day.date, exercise: item.exercise, sets: item.sets, comment: item.comment || '' }) }}>
                                 <span className="material-symbols-outlined edit card-btn">edit</span>
                               </button>
                               <button onClick={() => handleDeleteItem(item.id)}>
@@ -295,6 +296,7 @@ function TrainingPage({ user, exercises, records, setRecords, fetchRecords, setP
                           </div>
                           <div className="item-sets">
                             {item.sets.map((set, i) => <div key={i}>{set.weight} kg × {set.reps}</div>)}
+                            {item.comment && <div className="item-comment">{item.comment}</div>}
                           </div>
                         </div>
                       ))}

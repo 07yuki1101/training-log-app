@@ -30,6 +30,8 @@
 
   --friends:    #818cf8;
   --friends-bg: rgba(129,140,248,0.15);
+  --run:        #00e676;
+  --run-bg:     rgba(0,230,118,0.16);
   --text:     #f8f4ff;
   --muted:    #9e8fc4;
   --muted2:   #c4b8e8;
@@ -48,6 +50,7 @@ body {
     radial-gradient(ellipse 45% 35% at 75% 80%,  rgba(224,64,251,0.2),  transparent);
   color: var(--text);
   min-height: 100vh;
+  padding-bottom: calc(80px + env(safe-area-inset-bottom));
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
   font-size: 15px;
   line-height: 1.55;
@@ -151,8 +154,15 @@ h1 {
   to   { opacity: 1; transform: translateY(0); }
 }
 
+.form textarea {
+  width: 100%;
+  box-sizing: border-box;
+  resize: vertical;
+}
+
 .form input,
-.form select {
+.form select,
+.form textarea {
   display: block;
   width: 100%;
   margin: 8px 0;
@@ -171,7 +181,8 @@ h1 {
 }
 
 .form input:focus,
-.form select:focus {
+.form select:focus,
+.form textarea:focus {
   border-color: rgba(217,70,239,0.5);
   box-shadow: 0 0 0 3px rgba(217,70,239,0.12);
 }
@@ -298,6 +309,23 @@ input[type="date"] {
   font-size: 12px;
 }
 
+.previous-comment {
+  margin-top: 6px;
+  font-size: 12px;
+  color: var(--muted2);
+  font-style: italic;
+}
+
+.item-comment {
+  width: 100%;
+  flex-shrink: 0;
+  margin-top: 4px;
+  font-size: 12px;
+  color: var(--muted2);
+  font-style: italic;
+  white-space: pre-wrap;
+}
+
 /* ─── Log list ─── */
 .log {
   max-width: 600px;
@@ -385,146 +413,61 @@ input[type="date"] {
   color: var(--orange);
 }
 
-/* ─── Home navigation (`.home`) ─── */
-.home {
+/* ─── Tab bar ─── */
+.tab-bar {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 50;
   display: flex;
-  max-width: 600px;
-  width: 90%;
-  margin: 32px auto 24px;
-  justify-content: center;
-  gap: 16px;
+  background: rgba(18,10,50,0.96);
+  backdrop-filter: blur(20px);
+  border-top: 1px solid rgba(139,92,246,0.2);
+  padding-bottom: env(safe-area-inset-bottom);
 }
 
-.home label {
+.tab-item {
   flex: 1;
-  max-width: 110px;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 10px;
+  justify-content: center;
+  gap: 3px;
+  padding: 10px 2px 12px;
+  border: none;
+  background: transparent;
+  color: var(--tab-color);
   cursor: pointer;
+  transition: opacity 0.15s;
+  position: relative;
+  opacity: 0.55;
 }
 
-.home button {
-  width: 100%;
-  aspect-ratio: 1;
-  max-width: 110px;
-  border: 2px solid transparent;
-  background: var(--surface);
-  border-radius: 20px;
-  color: var(--text);
-  transition: transform 0.15s, box-shadow 0.2s;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-.home button:active { transform: scale(0.93); }
-
-/* Training button — orange */
-.home label:nth-child(1) button {
-  background: linear-gradient(145deg, rgba(255,107,53,0.18), rgba(255,107,53,0.06));
-  border-color: rgba(255,107,53,0.4);
-  box-shadow: 0 4px 20px rgba(255,107,53,0.15);
-}
-.home label:nth-child(1) button:hover { box-shadow: 0 6px 28px rgba(255,107,53,0.3); }
-.home label:nth-child(1) .material-symbols-outlined { color: var(--training); }
-.home label:nth-child(1) p { color: var(--training); }
-
-/* Meal button — fuchsia */
-.home label:nth-child(2) button {
-  background: linear-gradient(145deg, rgba(217,70,239,0.18), rgba(217,70,239,0.06));
-  border-color: rgba(217,70,239,0.4);
-  box-shadow: 0 4px 20px rgba(217,70,239,0.15);
-}
-.home label:nth-child(2) button:hover { box-shadow: 0 6px 28px rgba(217,70,239,0.3); }
-.home label:nth-child(2) .material-symbols-outlined { color: var(--meal); }
-.home label:nth-child(2) p { color: var(--meal); }
-
-/* Friends button — indigo */
-.home label:nth-child(4) button {
-  background: linear-gradient(145deg, rgba(129,140,248,0.18), rgba(129,140,248,0.06));
-  border-color: rgba(129,140,248,0.4);
-  box-shadow: 0 4px 20px rgba(129,140,248,0.15);
-}
-.home label:nth-child(4) button:hover { box-shadow: 0 6px 28px rgba(129,140,248,0.3); }
-.home label:nth-child(4) .material-symbols-outlined { color: var(--friends); }
-.home label:nth-child(4) p { color: var(--friends); }
-
-/* Weight button — cyan */
-.home label:nth-child(3) button {
-  background: linear-gradient(145deg, rgba(34,211,238,0.18), rgba(34,211,238,0.06));
-  border-color: rgba(34,211,238,0.4);
-  box-shadow: 0 4px 20px rgba(34,211,238,0.15);
-}
-.home label:nth-child(3) button:hover { box-shadow: 0 6px 28px rgba(34,211,238,0.3); }
-.home label:nth-child(3) .material-symbols-outlined { color: var(--weight); }
-.home label:nth-child(3) p { color: var(--weight); }
-
-.home .material-symbols-outlined { font-size: 44px; }
-
-.home p {
-  font-size: 12px;
-  font-weight: 700;
-  letter-spacing: 0.4px;
+.tab-item.tab-active {
+  opacity: 1;
 }
 
-/* ─── Page navigation (`.page`) ─── */
-.page {
-  display: flex;
-  justify-content: center;
-  gap: 8px;
-  padding: 10px 16px;
-  border-bottom: 1px solid rgba(139,92,246,0.2);
-  background: rgba(26,16,64,0.75);
-  backdrop-filter: blur(12px);
+.tab-item.tab-active::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 20%;
+  right: 20%;
+  height: 2px;
+  background: var(--tab-color);
+  border-radius: 0 0 2px 2px;
 }
 
-.page button {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 52px;
-  height: 52px;
-  border: 2px solid transparent;
-  background: var(--surface);
-  border-radius: var(--r);
-  transition: transform 0.1s, box-shadow 0.2s;
-}
-.page button:active { transform: scale(0.92); }
+.tab-item:active { opacity: 0.7; }
 
-/* Training tab — orange */
-.page button:nth-child(1) {
-  color: var(--training);
-  background: rgba(255,107,53,0.1);
-  border-color: rgba(255,107,53,0.35);
-}
-.page button:nth-child(1):hover { box-shadow: 0 0 14px rgba(255,107,53,0.35); }
+.tab-item .material-symbols-outlined { font-size: 22px; }
 
-/* Meal tab — fuchsia */
-.page button:nth-child(2) {
-  color: var(--meal);
-  background: rgba(217,70,239,0.1);
-  border-color: rgba(217,70,239,0.35);
+.tab-label {
+  font-size: 9px;
+  font-weight: 600;
+  letter-spacing: 0.3px;
 }
-.page button:nth-child(2):hover { box-shadow: 0 0 14px rgba(217,70,239,0.35); }
-
-/* Weight tab — cyan */
-.page button:nth-child(3) {
-  color: var(--weight);
-  background: rgba(34,211,238,0.1);
-  border-color: rgba(34,211,238,0.35);
-}
-.page button:nth-child(3):hover { box-shadow: 0 0 14px rgba(34,211,238,0.35); }
-
-.page .material-symbols-outlined { font-size: 26px; }
-
-/* Friends tab — indigo */
-.page button:nth-child(4) {
-  color: var(--friends);
-  background: rgba(129,140,248,0.1);
-  border-color: rgba(129,140,248,0.35);
-}
-.page button:nth-child(4):hover { box-shadow: 0 0 14px rgba(129,140,248,0.35); }
 
 /* ─── Friends page ─── */
 .friends-tabs {
