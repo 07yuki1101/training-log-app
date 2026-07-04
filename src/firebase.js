@@ -1,7 +1,7 @@
-// Import the functions you need from the SDKs you need
 import { initializeApp } from "firebase/app";
 import { initializeAuth, browserLocalPersistence, browserPopupRedirectResolver } from "firebase/auth";
 import { getFirestore } from "firebase/firestore";
+import { Capacitor } from "@capacitor/core";
 
 const firebaseConfig = {
   apiKey: "AIzaSyB01-MWSZl4Us-XUyXEfeLQjgxUHEUtpQM",
@@ -16,6 +16,6 @@ const app = initializeApp(firebaseConfig);
 
 export const auth = initializeAuth(app, {
   persistence: browserLocalPersistence,
-  popupRedirectResolver: browserPopupRedirectResolver
+  ...(Capacitor.isNativePlatform() ? {} : { popupRedirectResolver: browserPopupRedirectResolver })
 });
 export const db = getFirestore(app);

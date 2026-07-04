@@ -1,7 +1,8 @@
 import { useState, useEffect } from "react";
 import { collection, getDocs, addDoc, deleteDoc, updateDoc, doc, getDoc, writeBatch } from "firebase/firestore";
 import { db, auth } from "../firebase";
-import { deleteUser } from "firebase/auth";
+import { deleteUser, updateProfile } from "firebase/auth";
+import { setDoc } from "firebase/firestore";
 import { FirebaseAuthentication } from "@capacitor-firebase/authentication";
 
 const NEXT_URL = "https://training-api-kohl.vercel.app";
@@ -14,6 +15,24 @@ function SettingPage({ user, exercises, setExercises }) {
   const [editingId, setEditingId] = useState(null);
   const [editName, setEditName] = useState('');
   const [editBodyPart, setEditBodyPart] = useState('');
+
+  const [displayName, setDisplayName] = useState(user.displayName || '');
+  const [editingName, setEditingName] = useState(false);
+  const [nameMsg, setNameMsg] = useState('');
+
+  const handleSaveName = async () => {
+    const trimmed = displayName.trim();
+    if (!trimmed) return;
+    try {
+      await updateProfile(auth.currentUser, { displayName: trimmed });
+      await setDoc(doc(db, 'userProfiles', user.uid), { displayName: trimmed }, { merge: true });
+      setEditingName(false);
+      setNameMsg('名前を更新しました');
+      setTimeout(() => setNameMsg(''), 3000);
+    } catch (e) {
+      console.error(e);
+    }
+  };
 
   const [tanitaConnected, setTanitaConnected] = useState(false);
   const [tanitaMsg, setTanitaMsg] = useState('');
@@ -184,6 +203,37 @@ function SettingPage({ user, exercises, setExercises }) {
   return (
     <div className="setting">
       <h2 className="setting-title">設定</h2>
+
+      {/* ニックネーム */}
+      <div className="setting-section-label">ニックネーム</div>
+      <div className="uid-card">
+        {editingName ? (
+          <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+            <input
+              type="text"
+              value={displayName}
+              onChange={e => setDisplayName(e.target.value)}
+              maxLength={20}
+              autoFocus
+              style={{ flex: 1 }}
+            />
+            <button className="ex-save-btn" onClick={handleSaveName} disabled={!displayName.trim()}>
+              <span className="material-symbols-outlined">check</span>
+            </button>
+            <button className="ex-cancel-btn" onClick={() => { setEditingName(false); setDisplayName(user.displayName || ''); }}>
+              <span className="material-symbols-outlined">close</span>
+            </button>
+          </div>
+        ) : (
+          <div className="uid-row">
+            <span className="uid-text">{user.displayName || '未設定'}</span>
+            <button className="uid-copy-btn" onClick={() => setEditingName(true)}>
+              <span className="material-symbols-outlined small-btn">edit</span>
+            </button>
+          </div>
+        )}
+        {nameMsg && <p style={{ color: 'var(--green)', fontSize: 12, marginTop: 6 }}>{nameMsg}</p>}
+      </div>
 
       {/* ユーザーID */}
       <div className="setting-section-label">ユーザーID</div>

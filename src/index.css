@@ -259,6 +259,25 @@ input[type="date"] {
 }
 .set-row .cancel-btn .material-symbols-outlined { font-size: 18px; }
 
+.bodyweight-btn {
+  flex-shrink: 0;
+  height: 44px;
+  padding: 0 10px;
+  border-radius: var(--r-sm);
+  border: 1px solid rgba(255,255,255,0.2);
+  background: var(--surface2);
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.bodyweight-btn.active {
+  background: var(--green-bg);
+  border-color: var(--green);
+  color: var(--green);
+}
+
 .set-count {
   display: flex;
   justify-content: center;

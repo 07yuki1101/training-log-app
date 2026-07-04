@@ -5,6 +5,22 @@ import {
 } from "firebase/firestore";
 import { db } from "../firebase";
 
+const formatPace = (timeSeconds, distance) => {
+  if (!distance || distance === 0) return '-';
+  const pace = (timeSeconds / 60) / distance;
+  const min = Math.floor(pace);
+  const sec = Math.round((pace - min) * 60);
+  return `${min}'${String(sec).padStart(2, '0')}"/km`;
+};
+
+const formatTime = (totalSeconds) => {
+  const h = Math.floor(totalSeconds / 3600);
+  const m = Math.floor((totalSeconds % 3600) / 60);
+  const s = totalSeconds % 60;
+  if (h > 0) return `${h}時間${m}分${s}秒`;
+  return `${m}分${s}秒`;
+};
+
 function FriendsPage({ user }) {
   const [tab, setTab] = useState('feed');
   const [friends, setFriends] = useState([]);
@@ -51,22 +67,19 @@ function FriendsPage({ user }) {
     const results = await Promise.all(
       friends.map(async (friend) => {
         try {
-          const q = query(
-            collection(db, 'users', friend.uid, 'records'),
-            orderBy('date', 'desc'),
-            limit(20)
-          );
-          const snap = await getDocs(q);
-          const records = snap.docs
-            .map(d => ({ id: d.id, ...d.data() }))
-            .filter(r => r.date >= dateStr);
-          return { ...friend, records };
+          const [recSnap, runSnap] = await Promise.all([
+            getDocs(query(collection(db, 'users', friend.uid, 'records'), orderBy('date', 'desc'), limit(20))),
+            getDocs(query(collection(db, 'users', friend.uid, 'runs'), orderBy('date', 'desc'), limit(20))),
+          ]);
+          const records = recSnap.docs.map(d => ({ id: d.id, ...d.data(), type: 'training' })).filter(r => r.date >= dateStr);
+          const runs = runSnap.docs.map(d => ({ id: d.id, ...d.data(), type: 'run' })).filter(r => r.date >= dateStr);
+          return { ...friend, records, runs };
         } catch {
-          return { ...friend, records: [] };
+          return { ...friend, records: [], runs: [] };
         }
       })
     );
-    setFeed(results.filter(f => f.records.length > 0));
+    setFeed(results.filter(f => f.records.length > 0 || f.runs.length > 0));
     setFeedLoading(false);
   };
 
@@ -136,8 +149,8 @@ function FriendsPage({ user }) {
     setFriends(prev => prev.filter(f => f.uid !== friendUid));
   };
 
-  const groupByDate = (records) =>
-    records.reduce((acc, r) => {
+  const groupByDate = (items) =>
+    items.reduce((acc, r) => {
       if (!acc[r.date]) acc[r.date] = [];
       acc[r.date].push(r);
       return acc;
@@ -174,9 +187,9 @@ function FriendsPage({ user }) {
                 <span className="material-symbols-outlined" style={{ fontSize: 16, color: 'var(--friends)' }}>person</span>
                 <span className="friend-feed-name">{friend.displayName}</span>
               </div>
-              {Object.entries(groupByDate(friend.records))
+              {Object.entries(groupByDate([...friend.records, ...(friend.runs || [])]))
                 .sort(([a], [b]) => b.localeCompare(a))
-                .map(([date, recs]) => {
+                .map(([date, items]) => {
                   const key = `${friend.uid}_${date}`;
                   const isOpen = openItems.includes(key);
                   return (
@@ -193,14 +206,25 @@ function FriendsPage({ user }) {
                       </div>
                       {isOpen && (
                         <div>
-                          {recs.map(r => (
+                          {items.map(r => r.type === 'run' ? (
+                            <div key={r.id} className="item-card" style={{ borderLeftColor: 'var(--run)' }}>
+                              <div className="item-name">
+                                <div className="train-name" style={{ color: 'var(--run)' }}>ラン</div>
+                              </div>
+                              <div className="item-sets">
+                                <div>{r.distance} km</div>
+                                <div>{formatTime(r.timeSeconds ?? (r.time ?? 0) * 60)}</div>
+                                <div style={{ color: 'var(--run)' }}>{formatPace(r.timeSeconds ?? (r.time ?? 0) * 60, r.distance)}</div>
+                              </div>
+                            </div>
+                          ) : (
                             <div key={r.id} className="item-card">
                               <div className="item-name">
                                 <div className="train-name">{r.exercise}</div>
                               </div>
                               <div className="item-sets">
                                 {r.sets?.map((s, i) => (
-                                  <div key={i}>{s.weight}kg × {s.reps}回</div>
+                                  <div key={i}>{s.weight === '自重' ? `自重 × ${s.reps}回` : `${s.weight}kg × ${s.reps}回`}</div>
                                 ))}
                               </div>
                             </div>

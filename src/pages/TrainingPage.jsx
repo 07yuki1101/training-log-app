@@ -50,7 +50,7 @@ function TrainingPage({ user, exercises, records, setRecords, fetchRecords, setP
         date: newRecords.date,
         exercise: newRecords.exercise,
         sets: newRecords.sets.map(set => ({
-          weight: Number(set.weight),
+          weight: set.weight === '自重' ? '自重' : Number(set.weight),
           reps: Number(set.reps)
         })),
         comment: newRecords.comment || '',
@@ -136,7 +136,7 @@ function TrainingPage({ user, exercises, records, setRecords, fetchRecords, setP
       setNewRecords(prev => ({
         ...prev,
         sets: previous.sets.map(set => ({
-          weight: Number(set.weight),
+          weight: set.weight === '自重' ? '自重' : Number(set.weight),
           reps: ''
         }))
       }));
@@ -212,14 +212,24 @@ function TrainingPage({ user, exercises, records, setRecords, fetchRecords, setP
           )}
           {newRecords.sets.map((set, index) => (
             <div key={index} className="set-row">
-              <input type="number"
-                placeholder="重さ（kg）"
-                value={set.weight}
-                onChange={(e) => {
+              {set.weight !== '自重' && (
+                <input type="number"
+                  placeholder="重さ（kg）"
+                  value={set.weight}
+                  onChange={(e) => {
+                    const updated = [...newRecords.sets]
+                    updated[index].weight = e.target.value
+                    setNewRecords({ ...newRecords, sets: updated })
+                  }} />
+              )}
+              <button
+                className={`bodyweight-btn${set.weight === '自重' ? ' active' : ''}`}
+                onClick={() => {
                   const updated = [...newRecords.sets]
-                  updated[index].weight = e.target.value
+                  updated[index].weight = set.weight === '自重' ? '' : '自重'
                   setNewRecords({ ...newRecords, sets: updated })
-                }} />
+                }}
+              >自重</button>
 
               <input type="number"
                 placeholder="回数"
@@ -234,7 +244,6 @@ function TrainingPage({ user, exercises, records, setRecords, fetchRecords, setP
                 remove
               </span></button>
             </div>
-
           ))}
 
           <div className="set-count">
@@ -295,7 +304,11 @@ function TrainingPage({ user, exercises, records, setRecords, fetchRecords, setP
                             </div>
                           </div>
                           <div className="item-sets">
-                            {item.sets.map((set, i) => <div key={i}>{set.weight} kg × {set.reps}</div>)}
+                            {item.sets.map((set, i) => (
+                              <div key={i}>
+                                {set.weight === '自重' ? `自重 × ${set.reps}` : `${set.weight}kg × ${set.reps}`}
+                              </div>
+                            ))}
                             {item.comment && <div className="item-comment">{item.comment}</div>}
                           </div>
                         </div>

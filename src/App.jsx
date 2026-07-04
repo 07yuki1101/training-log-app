@@ -13,9 +13,11 @@ import MealPage from "./pages/MealPage"
 import WeightPage from "./pages/WeightPage";
 import FriendsPage from "./pages/FriendsPage";
 import Login from "./components/Login"
+import SetupName from "./components/SetupName"
 function App() {
   const [page, setPage] = useState(null);
   const [user, setUser] = useState(null);
+  const [needsName, setNeedsName] = useState(false);
   const [records, setRecords] = useState([])
   const [exercises, setExercises] = useState([])
   const [runRecords, setRunRecords] = useState([])
@@ -96,6 +98,7 @@ function App() {
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
       setUser(currentUser);
       if (currentUser) {
+        setNeedsName(!currentUser.displayName);
         setDoc(doc(db, 'userProfiles', currentUser.uid), {
           displayName: currentUser.displayName || '',
           email: currentUser.email,
@@ -116,7 +119,11 @@ function App() {
 
 
   if (!user) {
-    return <Login></Login>
+    return <Login />
+  }
+
+  if (needsName) {
+    return <SetupName user={user} onComplete={() => setNeedsName(false)} />
   }
 
   const handleLogout = async () => {
