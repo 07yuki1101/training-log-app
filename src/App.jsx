@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react"
+import { useState, useEffect, useRef } from "react"
 import { onAuthStateChanged, signOut } from "firebase/auth";
 import { FirebaseAuthentication } from "@capacitor-firebase/authentication";
 import { auth } from "./firebase";
@@ -14,6 +14,11 @@ import WeightPage from "./pages/WeightPage";
 import FriendsPage from "./pages/FriendsPage";
 import Login from "./components/Login"
 import SetupName from "./components/SetupName"
+import ReviewPrompt from "./components/ReviewPrompt"
+import { shouldShowReviewPrompt, markReviewPromptShown, markReviewPromptCompleted } from "./utils/reviewPrompt"
+
+const APP_STORE_REVIEW_URL = 'itms-apps://apps.apple.com/app/id6771252329?action=write-review';
+
 function App() {
   const [page, setPage] = useState(null);
   const [user, setUser] = useState(null);
@@ -21,6 +26,8 @@ function App() {
   const [records, setRecords] = useState([])
   const [exercises, setExercises] = useState([])
   const [runRecords, setRunRecords] = useState([])
+  const [showReviewPrompt, setShowReviewPrompt] = useState(false);
+  const prevRecordsCountRef = useRef(null);
 
    const fetchRecords = async (uid) => {
       const q = query(
@@ -117,6 +124,29 @@ function App() {
     return () => unsubscribe();
   }, []);
 
+  // トレーニング記録が新しく追加されたタイミング（ポジティブな体験の直後）だけ
+  // レビュー依頼バナーの表示を検討する。初回読み込みや削除・編集では表示しない。
+  useEffect(() => {
+    const prevCount = prevRecordsCountRef.current;
+    prevRecordsCountRef.current = records.length;
+    if (prevCount === null) return;
+    if (records.length <= prevCount) return;
+    if (shouldShowReviewPrompt(records.length)) {
+      markReviewPromptShown();
+      setShowReviewPrompt(true);
+    }
+  }, [records.length]);
+
+  const handleReviewPromptReview = () => {
+    markReviewPromptCompleted();
+    setShowReviewPrompt(false);
+    window.location.href = APP_STORE_REVIEW_URL;
+  };
+
+  const handleReviewPromptClose = () => {
+    setShowReviewPrompt(false);
+  };
+
 
   if (!user) {
     return <Login />
@@ -196,6 +226,11 @@ function App() {
           runRecords={runRecords} />
       }
 
+      {showReviewPrompt &&
+        <ReviewPrompt
+          onReview={handleReviewPromptReview}
+          onClose={handleReviewPromptClose} />
+      }
 
     </div>
   )
