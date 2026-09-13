@@ -4,6 +4,7 @@ import { db, auth } from "../firebase";
 import { deleteUser, updateProfile } from "firebase/auth";
 import { setDoc } from "firebase/firestore";
 import { FirebaseAuthentication } from "@capacitor-firebase/authentication";
+import { getStoredTheme, setTheme, THEMES } from "../utils/theme";
 
 const NEXT_URL = "https://training-api-kohl.vercel.app";
 
@@ -19,6 +20,14 @@ function SettingPage({ user, exercises, setExercises }) {
   const [displayName, setDisplayName] = useState(user.displayName || '');
   const [editingName, setEditingName] = useState(false);
   const [nameMsg, setNameMsg] = useState('');
+
+  const [theme, setThemeState] = useState(getStoredTheme());
+
+  const handleThemeChange = (next) => {
+    if (next === theme) return;
+    setTheme(next);
+    setThemeState(next);
+  };
 
   const handleSaveName = async () => {
     const trimmed = displayName.trim();
@@ -203,6 +212,38 @@ function SettingPage({ user, exercises, setExercises }) {
   return (
     <div className="setting">
       <h2 className="setting-title">設定</h2>
+
+      {/* 表示テーマ */}
+      <div className="setting-section-label">表示</div>
+      <div className="setting-card integration-card">
+        <span className="material-symbols-outlined integration-icon">
+          {theme === THEMES.LIGHT ? 'light_mode' : 'dark_mode'}
+        </span>
+        <div className="integration-info">
+          <span className="integration-name">テーマ</span>
+          <span className="integration-status connected">
+            {theme === THEMES.LIGHT ? 'ライトモード' : 'ダークモード'}
+          </span>
+        </div>
+        <div className="theme-switch">
+          <button
+            type="button"
+            className={`theme-switch-btn${theme === THEMES.DARK ? ' active' : ''}`}
+            onClick={() => handleThemeChange(THEMES.DARK)}
+            aria-label="ダークモードにする"
+          >
+            <span className="material-symbols-outlined">dark_mode</span>
+          </button>
+          <button
+            type="button"
+            className={`theme-switch-btn${theme === THEMES.LIGHT ? ' active' : ''}`}
+            onClick={() => handleThemeChange(THEMES.LIGHT)}
+            aria-label="ライトモードにする"
+          >
+            <span className="material-symbols-outlined">light_mode</span>
+          </button>
+        </div>
+      </div>
 
       {/* ニックネーム */}
       <div className="setting-section-label">ニックネーム</div>

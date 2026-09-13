@@ -270,7 +270,7 @@ function TrainingPage({ user, exercises, records, setRecords, fetchRecords, setP
       )}
 
       <div className="log">
-        <h2 className="section-title">トレーニング記録</h2>
+        <h2 className="section-title" style={{ color: 'var(--training)' }}>トレーニング記録</h2>
         {(() => {
           const sorted = Object.values(groupedRecords).sort((a, b) => b.date.localeCompare(a.date));
           const LIMIT = 5;

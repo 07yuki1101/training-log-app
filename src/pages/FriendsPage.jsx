@@ -241,7 +241,7 @@ function FriendsPage({ user }) {
 
       {tab === 'friends' && (
         <div className="log">
-          <p className="section-title">友達を追加</p>
+          <p className="section-title" style={{ color: 'var(--friends)' }}>友達を追加</p>
           <div className="friend-add-form">
             <input
               type="email"
@@ -258,7 +258,7 @@ function FriendsPage({ user }) {
 
           {requests.length > 0 && (
             <>
-              <p className="section-title" style={{ marginTop: 20 }}>
+              <p className="section-title" style={{ marginTop: 20, color: 'var(--friends)' }}>
                 リクエスト ({requests.length})
               </p>
               {requests.map(req => (
@@ -276,7 +276,7 @@ function FriendsPage({ user }) {
             </>
           )}
 
-          <p className="section-title" style={{ marginTop: 20 }}>
+          <p className="section-title" style={{ marginTop: 20, color: 'var(--friends)' }}>
             友達 ({friends.length})
           </p>
           {friends.length === 0 ? (

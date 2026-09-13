@@ -169,7 +169,7 @@ function MealPage({ user }) {
       )}
 
       <div className="log">
-        <h2 className="section-title">食事記録</h2>
+        <h2 className="section-title" style={{ color: 'var(--meal)' }}>食事記録</h2>
         {(() => {
           const sorted = Object.values(groupedMeals).sort((a, b) => b.date.localeCompare(a.date));
           const LIMIT = 5;

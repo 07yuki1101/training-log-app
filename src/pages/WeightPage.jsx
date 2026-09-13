@@ -275,10 +275,10 @@ function WeightPage({ user }) {
               <Line
                 yAxisId="bw"
                 dataKey="bw"
-                stroke="#e8622e"
+                stroke="#9b84c9"
                 strokeWidth={2}
                 connectNulls
-                dot={{ r: 4, fill: '#e8622e', stroke: 'rgba(232,98,46,0.3)', strokeWidth: 2 }}
+                dot={{ r: 4, fill: '#9b84c9', stroke: 'rgba(155,132,201,0.3)', strokeWidth: 2 }}
               />
               <Line
                 yAxisId="bf"
@@ -312,7 +312,7 @@ function WeightPage({ user }) {
 
       {/* 記録一覧 */}
       <div className="weight-log">
-        <h2 className="section-title">体重記録</h2>
+        <h2 className="section-title" style={{ color: 'var(--weight)' }}>体重記録</h2>
         {(() => {
           const sorted = [...weight].sort((a, b) => b.date.localeCompare(a.date));
           const LIMIT = 10;

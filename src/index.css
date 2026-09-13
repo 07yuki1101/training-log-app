@@ -10,13 +10,19 @@
 
 /* ─── Variables ───
    ミニマル・黒基調 + アクセント1色（トレーニングオレンジ）
-   カテゴリ色（meal/weight/friends/run）は色相ではなく
-   グレースケールの濃淡で差をつける。 */
+   カテゴリ色（meal/weight/friends/run）は彩度を抑えた
+   落ち着いたトーンで、ページごとに異なる色を割り当てる。
+   ライトモードは下の [data-theme="light"] で同じ変数名を上書きする。 */
 :root {
   --bg:       #0a0a0b;
   --surface:  #161618;
   --surface2: #212124;
   --border:   rgba(255,255,255,0.10);
+  --border-strong: rgba(255,255,255,0.20);
+  --surface-tint:  rgba(255,255,255,0.08);
+  --header-bg: rgba(10,10,11,0.88);
+  --tabbar-bg: rgba(8,8,9,0.96);
+  --cs: dark; /* input等のネイティブUIの明暗（color-scheme） */
 
   /* 唯一のアクセントカラー */
   --accent:    #e8622e;
@@ -29,23 +35,60 @@
   --red-bg:   rgba(194,86,79,0.16);
   --orange:   var(--accent);
 
+  /* ページごとのアイデンティティカラー（ロゴ・アイコン・見出し用。
+     彩度を抑え、黒基調に馴染む落ち着いたトーンに統一） */
   --training:    var(--accent);
   --training-bg: var(--accent-bg);
-  --meal:        #c9c9cd;
-  --meal-bg:     rgba(255,255,255,0.08);
-  --weight:      #f0f0f1;
-  --weight-bg:   rgba(255,255,255,0.09);
+  --meal:        #7a9e6f;
+  --meal-bg:     rgba(122,158,111,0.14);
+  --weight:      #9b84c9;
+  --weight-bg:   rgba(155,132,201,0.14);
 
-  --friends:    #c9c9cd;
-  --friends-bg: rgba(255,255,255,0.08);
-  --run:        #a3a3a8;
-  --run-bg:     rgba(255,255,255,0.08);
+  --friends:    #c97fa0;
+  --friends-bg: rgba(201,127,160,0.14);
+  --run:        #5b8fbd;
+  --run-bg:     rgba(91,143,189,0.14);
   --text:     #f5f5f6;
   --muted:    #83838a;
   --muted2:   #b4b4b9;
   --r:        14px;
   --r-sm:     10px;
   --r-full:   999px;
+}
+
+/* ─── ライトモード ───
+   設定画面のトグルで <html data-theme="light"> を付け外しして切り替える。
+   （src/utils/theme.js） */
+[data-theme="light"] {
+  --bg:       #f5f5f6;
+  --surface:  #ffffff;
+  --surface2: #ececee;
+  --border:   rgba(0,0,0,0.10);
+  --border-strong: rgba(0,0,0,0.16);
+  --surface-tint:  rgba(0,0,0,0.05);
+  --header-bg: rgba(255,255,255,0.86);
+  --tabbar-bg: rgba(255,255,255,0.92);
+  --cs: light;
+
+  --accent-bg: rgba(232,98,46,0.10);
+
+  --green:    #3f8763;
+  --green-bg: rgba(63,135,99,0.12);
+  --red:      #b3413a;
+  --red-bg:   rgba(179,65,58,0.10);
+
+  --meal:        #5c7c53;
+  --meal-bg:     rgba(92,124,83,0.12);
+  --weight:      #7a63a8;
+  --weight-bg:   rgba(122,99,168,0.12);
+  --friends:    #a85c7d;
+  --friends-bg: rgba(168,92,125,0.12);
+  --run:        #3f6a8c;
+  --run-bg:     rgba(63,106,140,0.12);
+
+  --text:     #17171a;
+  --muted:    #6b6b72;
+  --muted2:   #3d3d43;
 }
 
 /* ─── Base ─── */
@@ -66,7 +109,7 @@ button { cursor: pointer; font-family: inherit; }
 header {
   padding: calc(env(safe-area-inset-top) + 14px) 20px 14px;
   border-bottom: 1px solid var(--border);
-  background: rgba(10,10,11,0.88);
+  background: var(--header-bg);
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
   display: flex;
@@ -177,7 +220,7 @@ h1 {
   outline: none;
   transition: border-color 0.2s, box-shadow 0.2s;
   -webkit-appearance: none;
-  color-scheme: dark;
+  color-scheme: var(--cs);
 }
 
 .form input:focus,
@@ -192,7 +235,7 @@ h1 {
 input[type="date"] {
   -webkit-appearance: none;
   color: var(--text);
-  color-scheme: dark;
+  color-scheme: var(--cs);
 }
 
 /* Add / submit button */
@@ -264,7 +307,7 @@ input[type="date"] {
   height: 44px;
   padding: 0 10px;
   border-radius: var(--r-sm);
-  border: 1px solid rgba(255,255,255,0.2);
+  border: 1px solid var(--border-strong);
   background: var(--surface2);
   color: var(--muted);
   font-size: 12px;
@@ -389,7 +432,7 @@ input[type="date"] {
 }
 .item-card:last-child { margin-bottom: 10px; }
 
-.run-card { border-left-color: rgba(255,255,255,0.18); }
+.run-card { border-left-color: var(--border-strong); }
 
 .run-card-date {
   font-size: 14px;
@@ -480,7 +523,7 @@ input[type="date"] {
   right: 0;
   z-index: 50;
   display: flex;
-  background: rgba(8,8,9,0.96);
+  background: var(--tabbar-bg);
   backdrop-filter: blur(20px);
   border-top: 1px solid var(--border);
   padding-bottom: env(safe-area-inset-bottom);
@@ -533,7 +576,7 @@ input[type="date"] {
   display: flex;
   gap: 8px;
   padding: 12px 20px;
-  border-bottom: 1px solid rgba(255,255,255,0.10);
+  border-bottom: 1px solid var(--border);
 }
 
 .friends-tab-btn {
@@ -553,7 +596,7 @@ input[type="date"] {
 .friends-tab-btn.active {
   background: var(--friends-bg);
   color: var(--friends);
-  border-color: rgba(255,255,255,0.22);
+  border-color: var(--border-strong);
 }
 
 .req-badge {
@@ -591,7 +634,7 @@ input[type="date"] {
   outline: none;
   transition: border-color 0.2s;
 }
-.friend-add-form input:focus { border-color: rgba(255,255,255,0.28); }
+.friend-add-form input:focus { border-color: var(--border-strong); }
 
 .friend-add-form button {
   width: 44px;
@@ -607,7 +650,7 @@ input[type="date"] {
   transition: background 0.2s;
 }
 .friend-add-form button:disabled { opacity: 0.4; cursor: default; }
-.friend-add-form button:not(:disabled):active { background: rgba(255,255,255,0.16); }
+.friend-add-form button:not(:disabled):active { background: var(--surface-tint); }
 
 .friends-msg {
   font-size: 13px;
@@ -738,7 +781,7 @@ input[type="date"] {
   padding: 8px 10px;
   background: var(--surface);
   border: 1px solid var(--border);
-  border-left: 3px solid rgba(255,255,255,0.18);
+  border-left: 3px solid var(--border-strong);
   border-radius: var(--r-sm);
   margin: 4px 0;
   font-size: 14px;
@@ -803,7 +846,7 @@ table {
 
 .graph-style {
   background: var(--surface);
-  border: 1px solid rgba(255,255,255,0.14);
+  border: 1px solid var(--border-strong);
   border-radius: var(--r);
   padding: 12px 4px 4px;
 }
@@ -835,7 +878,7 @@ tr.date td:first-child {
 tr.date td:nth-child(2) {
   font-weight: 700;
   font-size: 16px;
-  color: var(--accent);
+  color: var(--weight);
 }
 tr.date td:last-child {
   border-radius: 0 var(--r-sm) var(--r-sm) 0;
@@ -876,6 +919,35 @@ tr.date td:last-child {
   margin-bottom: 10px;
   overflow: hidden;
 }
+
+/* テーマ切り替え（ダーク/ライト） */
+.theme-switch {
+  display: flex;
+  gap: 4px;
+  flex-shrink: 0;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: var(--r-full);
+  padding: 3px;
+}
+.theme-switch-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: var(--r-full);
+  border: none;
+  background: transparent;
+  color: var(--muted);
+  transition: background 0.2s, color 0.2s, transform 0.12s;
+}
+.theme-switch-btn .material-symbols-outlined { font-size: 18px; }
+.theme-switch-btn.active {
+  background: var(--accent);
+  color: #fff;
+}
+.theme-switch-btn:active { transform: scale(0.9); }
 
 .uid-card {
   background: var(--surface);
@@ -1100,7 +1172,7 @@ tr.date td:last-child {
   font-family: inherit;
   outline: none;
   -webkit-appearance: none;
-  color-scheme: dark;
+  color-scheme: var(--cs);
   transition: border-color 0.2s, box-shadow 0.2s;
 }
 .add-exercise-form input:focus,
@@ -1194,7 +1266,7 @@ tr.date td:last-child {
   font-family: inherit;
   outline: none;
   -webkit-appearance: none;
-  color-scheme: dark;
+  color-scheme: var(--cs);
 }
 .exercise-edit-fields select option { background: var(--surface2); }
 
@@ -1237,7 +1309,7 @@ tr.date td:last-child {
   color: var(--muted2);
 }
 .ex-edit-btn {
-  background: rgba(255,255,255,0.08);
+  background: var(--surface-tint);
   color: var(--text);
 }
 .ex-delete-btn {
@@ -1276,10 +1348,10 @@ tr.date td:last-child {
 /* Edit button */
 .table-action button:has(.edit) {
   color: var(--text);
-  background: rgba(255,255,255,0.08);
-  border-color: rgba(255,255,255,0.14);
+  background: var(--surface-tint);
+  border-color: var(--border-strong);
 }
-.table-action button:has(.edit):active { background: rgba(255,255,255,0.14); }
+.table-action button:has(.edit):active { background: var(--border-strong); }
 
 /* Toggle arrow button */
 .table-action button:has(.arrow) {
@@ -1296,7 +1368,7 @@ tr.date td:last-child {
   margin: 12px 0 4px;
   padding: 11px;
   background: transparent;
-  border: 1px dashed rgba(255,255,255,0.12);
+  border: 1px dashed var(--border);
   border-radius: var(--r);
   color: var(--muted2);
   font-size: 13px;
@@ -1308,7 +1380,7 @@ tr.date td:last-child {
 .show-more-btn:hover {
   background: var(--surface);
   color: var(--text);
-  border-color: rgba(255,255,255,0.30);
+  border-color: var(--border-strong);
   border-style: solid;
 }
 .show-more-btn:active { background: var(--surface2); }
@@ -1353,8 +1425,8 @@ tr.date td:last-child {
 }
 
 .tanita-card--connected {
-  border-color: rgba(255,255,255,0.18);
-  background: rgba(255,255,255,0.05);
+  border-color: var(--border-strong);
+  background: var(--surface-tint);
 }
 
 .tanita-icon {
@@ -1386,7 +1458,7 @@ tr.date td:last-child {
   font-family: inherit;
 }
 .tanita-sync-btn .material-symbols-outlined { font-size: 16px; }
-.tanita-sync-btn:hover  { background: rgba(255,255,255,0.10); }
+.tanita-sync-btn:hover  { background: var(--surface-tint); }
 .tanita-sync-btn:active { transform: scale(0.95); }
 .tanita-sync-btn:disabled { opacity: 0.5; cursor: default; }
 
@@ -1405,7 +1477,7 @@ tr.date td:last-child {
   flex-shrink: 0;
 }
 .tanita-test-btn .material-symbols-outlined { font-size: 16px; }
-.tanita-test-btn:hover { color: var(--text); border-color: rgba(255,255,255,0.3); }
+.tanita-test-btn:hover { color: var(--text); border-color: var(--border-strong); }
 
 @keyframes spin {
   from { transform: rotate(0deg); }
@@ -1455,7 +1527,7 @@ tr.date td:last-child {
   display: flex;
   align-items: center;
   gap: 5px;
-  color: var(--accent);
+  color: var(--weight);
 }
 .legend-manual {
   display: flex;
@@ -1469,7 +1541,7 @@ tr.date td:last-child {
   height: 8px;
   border-radius: 50%;
 }
-.legend-tanita .legend-dot { background: var(--accent); }
+.legend-tanita .legend-dot { background: var(--weight); }
 .legend-manual .legend-dot { background: var(--green); }
 .legend-bf {
   display: flex;
@@ -1728,8 +1800,8 @@ tr.date td:last-child {
 }
 
 .share-card-exercise {
-  background: rgba(255,255,255,0.06);
-  border: 1px solid rgba(255,255,255,0.1);
+  background: var(--surface-tint);
+  border: 1px solid var(--border);
   border-left: 3px solid var(--training);
   border-radius: 12px;
   padding: 9px 11px;
@@ -1772,8 +1844,8 @@ tr.date td:last-child {
 
 .share-card-stat {
   flex: 1;
-  background: rgba(255,255,255,0.06);
-  border: 1px solid rgba(255,255,255,0.1);
+  background: var(--surface-tint);
+  border: 1px solid var(--border);
   border-radius: 12px;
   padding: 10px;
   text-align: center;
@@ -1834,7 +1906,7 @@ tr.date td:last-child {
   justify-content: center;
   color: var(--muted2);
   font-size: 13px;
-  background: rgba(255,255,255,0.05);
+  background: var(--surface-tint);
   border-radius: 12px;
 }
 
@@ -1844,7 +1916,7 @@ tr.date td:last-child {
   gap: 6px;
   margin-top: 4px;
   padding-top: 12px;
-  border-top: 1px solid rgba(255,255,255,0.12);
+  border-top: 1px solid var(--border);
   font-size: 11px;
   font-weight: 600;
   color: var(--muted2);

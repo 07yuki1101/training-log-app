@@ -22,7 +22,7 @@
 .summary-divider {
   width: 1px;
   height: 48px;
-  background: rgba(255,255,255,0.1);
+  background: var(--border);
   margin: 0 16px;
   flex-shrink: 0;
 }
@@ -185,7 +185,7 @@
   display: block;
   width: 36px;
   height: 4px;
-  background: rgba(255,255,255,0.2);
+  background: var(--border-strong);
   border-radius: 2px;
   margin: 0 auto 16px;
 }
