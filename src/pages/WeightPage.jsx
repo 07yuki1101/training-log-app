@@ -2,6 +2,7 @@ import { collection, getDocs, addDoc, doc, getDoc, setDoc } from "firebase/fires
 import { db } from "../firebase"
 import { useEffect, useState } from "react";
 import { LineChart, Line, XAxis, YAxis, ResponsiveContainer, Tooltip, Legend, CartesianGrid } from "recharts";
+import ShareModal from "../components/ShareModal";
 
 const NEXT_URL = "https://training-api-kohl.vercel.app";
 
@@ -11,6 +12,7 @@ function WeightPage({ user }) {
   const [newWeight, setNewWeight] = useState({ date: '', bw: '', bf: '' });
   const [range, setRange] = useState(30);
   const [showAllLog, setShowAllLog] = useState(false);
+  const [showShareModal, setShowShareModal] = useState(false);
 
   const [tanitaConnected, setTanitaConnected] = useState(false);
   const [syncing, setSyncing] = useState(false);
@@ -229,9 +231,19 @@ function WeightPage({ user }) {
       {/* グラフ */}
       <div className="graph">
         <div className="graph-switch">
-          <button className="range-btn" onClick={() => setRange(30)}>1ヶ月</button>
-          <button className="range-btn" onClick={() => setRange(180)}>6ヶ月</button>
-          <button className="range-btn" onClick={() => setRange(365)}>1年</button>
+          <div className="graph-switch-ranges">
+            <button className="range-btn" onClick={() => setRange(30)}>1ヶ月</button>
+            <button className="range-btn" onClick={() => setRange(180)}>6ヶ月</button>
+            <button className="range-btn" onClick={() => setRange(365)}>1年</button>
+          </div>
+          <button
+            className="share-btn-inline"
+            onClick={() => setShowShareModal(true)}
+            disabled={filteredWeight.length === 0}
+          >
+            <span className="material-symbols-outlined">ios_share</span>
+            シェア
+          </button>
         </div>
         <div className="graph-style">
           <ResponsiveContainer width="100%" height={250}>
@@ -254,7 +266,7 @@ function WeightPage({ user }) {
                 tickFormatter={(v) => `${v}%`}
               />
               <Tooltip
-                contentStyle={{ background: "#17122e", border: "none", borderRadius: "8px", color: "white" }}
+                contentStyle={{ background: "#161618", border: "1px solid rgba(255,255,255,0.1)", borderRadius: "8px", color: "#f5f5f6" }}
                 formatter={(value, name) => {
                   if (name === 'bw') return [`${value} kg`, '体重'];
                   if (name === 'bf') return [`${value} %`, '体脂肪率'];
@@ -263,15 +275,15 @@ function WeightPage({ user }) {
               <Line
                 yAxisId="bw"
                 dataKey="bw"
-                stroke="#18ffff"
+                stroke="#e8622e"
                 strokeWidth={2}
                 connectNulls
-                dot={{ r: 4, fill: '#18ffff', stroke: 'rgba(24,255,255,0.3)', strokeWidth: 2 }}
+                dot={{ r: 4, fill: '#e8622e', stroke: 'rgba(232,98,46,0.3)', strokeWidth: 2 }}
               />
               <Line
                 yAxisId="bf"
                 dataKey="bf"
-                stroke="#ff6b6b"
+                stroke="#8a8a90"
                 strokeWidth={2}
                 strokeDasharray="4 2"
                 connectNulls
@@ -282,8 +294,8 @@ function WeightPage({ user }) {
                     <circle
                       key={`bf-${cx}-${cy}`}
                       cx={cx} cy={cy} r={4}
-                      fill="#ff6b6b"
-                      stroke="rgba(255,107,107,0.3)"
+                      fill="#8a8a90"
+                      stroke="rgba(255,255,255,0.18)"
                       strokeWidth={2}
                     />
                   );
@@ -317,9 +329,11 @@ function WeightPage({ user }) {
                         {day.bf != null ? `${day.bf} %` : '—'}
                       </td>
                       <td>
-                        <button onClick={() => handleDelete(day.id)}>
-                          <span className="material-symbols-outlined delete small-btn">delete</span>
-                        </button>
+                        <div className="table-action">
+                          <button onClick={() => handleDelete(day.id)}>
+                            <span className="material-symbols-outlined delete small-btn">delete</span>
+                          </button>
+                        </div>
                       </td>
                     </tr>
                   ))}
@@ -334,6 +348,15 @@ function WeightPage({ user }) {
           );
         })()}
       </div>
+
+      {showShareModal && (
+        <ShareModal
+          variant="weight"
+          points={filteredWeight.slice(-14)}
+          latest={filteredWeight[filteredWeight.length - 1]}
+          onClose={() => setShowShareModal(false)}
+        />
+      )}
     </div>
   );
 }

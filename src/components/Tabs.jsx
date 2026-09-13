@@ -1,5 +1,5 @@
 const TABS = [
-  { id: null,       icon: 'home',          label: 'Home',     color: '#c4b5fd' },
+  { id: null,       icon: 'home',          label: 'Home',     color: 'var(--text)' },
   { id: 'training', icon: 'exercise',      label: 'Training', color: 'var(--training)' },
   { id: 'run',      icon: 'directions_run',label: 'Run',      color: 'var(--run)' },
   { id: 'meal',     icon: 'dining',        label: 'Meal',     color: 'var(--meal)' },

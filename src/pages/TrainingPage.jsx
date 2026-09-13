@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react"
 import { collection, getDocs, addDoc, deleteDoc, updateDoc, doc, query, orderBy, serverTimestamp } from "firebase/firestore";
 import { db } from "../firebase";
+import ShareModal from "../components/ShareModal";
 
 const BODY_PART_ORDER = ['胸', '背中', '肩', '腕', '脚', '腹筋', 'その他'];
 
@@ -99,6 +100,7 @@ function TrainingPage({ user, exercises, records, setRecords, fetchRecords, setP
 
   const [openItem, setOpenItem] = useState([]);
   const [showAllLog, setShowAllLog] = useState(false);
+  const [shareDay, setShareDay] = useState(null);
   const toggleItem = (date) => {
     setOpenItem(prev =>
       prev.includes(date)
@@ -280,6 +282,7 @@ function TrainingPage({ user, exercises, records, setRecords, fetchRecords, setP
                   <div className="date">
                     <h3>{day.date}</h3>
                     <div className="table-action">
+                      <button onClick={() => setShareDay(day)}><span className="material-symbols-outlined share-icon small-btn">ios_share</span></button>
                       <button onClick={() => handleDeleteDate(day.date)}><span className="material-symbols-outlined delete small-btn">delete</span></button>
                       <button onClick={() => toggleItem(day.date)}>
                         {openItem.includes(day.date)
@@ -326,6 +329,15 @@ function TrainingPage({ user, exercises, records, setRecords, fetchRecords, setP
           );
         })()}
       </div>
+
+      {shareDay && (
+        <ShareModal
+          variant="training"
+          date={shareDay.date}
+          items={shareDay.items}
+          onClose={() => setShareDay(null)}
+        />
+      )}
 
     </div>
 

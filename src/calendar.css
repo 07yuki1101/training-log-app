@@ -7,7 +7,7 @@
   width: 90%;
   margin: 16px auto 0;
   background: var(--surface);
-  border: 1px solid rgba(139,92,246,0.3);
+  border: 1px solid var(--border);
   border-radius: var(--r);
   padding: 14px 20px;
 }
@@ -66,7 +66,7 @@
 
 .react-calendar {
   background: var(--surface);
-  border: 1px solid rgba(139,92,246,0.3);
+  border: 1px solid var(--border);
   border-radius: var(--r);
   padding: 16px;
   color: var(--text);
@@ -127,16 +127,16 @@
 
 .react-calendar__tile--active,
 .react-calendar__tile--active:enabled:hover {
-  background: linear-gradient(135deg, var(--training), var(--meal)) !important;
+  background: var(--training) !important;
   color: #fff !important;
   font-weight: 700;
-  box-shadow: 0 2px 12px rgba(217,70,239,0.35);
+  box-shadow: 0 2px 12px rgba(232,98,46,0.35);
 }
 
 .dot {
   width: 5px;
   height: 5px;
-  background: linear-gradient(135deg, var(--training), var(--meal));
+  background: var(--training);
   border-radius: 50%;
   margin-top: 3px;
 }
@@ -169,7 +169,7 @@
 
 .modal {
   background: var(--surface);
-  border: 1px solid rgba(139,92,246,0.35);
+  border: 1px solid var(--border);
   border-bottom: none;
   width: 100%;
   max-width: 600px;
@@ -185,7 +185,7 @@
   display: block;
   width: 36px;
   height: 4px;
-  background: linear-gradient(90deg, var(--training), var(--meal), var(--weight));
+  background: rgba(255,255,255,0.2);
   border-radius: 2px;
   margin: 0 auto 16px;
 }
@@ -238,10 +238,7 @@
 .exercise {
   font-size: 14px;
   font-weight: 600;
-  background: linear-gradient(135deg, var(--training), var(--meal));
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
+  color: var(--text);
   margin-bottom: 6px;
 }
 
