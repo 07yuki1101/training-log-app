@@ -54,11 +54,11 @@ function Login() {
             <span style={{ fontSize: 20, marginRight: 8 }}>&#xf8ff;</span> Appleでログイン
           </button>
         </>
-      ) : import.meta.env.DEV ? (
+      ) : (
         <button className="login-btn" onClick={handleBrowserDevLogin}>
-          <img className="login-icon" src={googleIcon} alt="" /> ブラウザでログイン（開発用）
+          <img className="login-icon" src={googleIcon} alt="" /> Googleでログイン
         </button>
-      ) : null}
+      )}
     </div>
   );
 }
